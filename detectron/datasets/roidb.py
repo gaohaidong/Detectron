@@ -26,6 +26,7 @@ import numpy as np
 
 from detectron.core.config import cfg
 from detectron.datasets.json_dataset import JsonDataset
+from detectron.datasets.traffic_dataset import TrafficDataset
 import detectron.utils.boxes as box_utils
 import detectron.utils.keypoints as keypoint_utils
 import detectron.utils.segms as segm_utils
@@ -39,7 +40,10 @@ def combined_roidb_for_training(dataset_names, proposal_files):
     which involves caching certain types of metadata for each roidb entry.
     """
     def get_roidb(dataset_name, proposal_file):
-        ds = JsonDataset(dataset_name)
+        if 'traffic' in dataset_name:
+            ds = TrafficDataset(dataset_name)
+        else:
+            ds = JsonDataset(dataset_name)
         roidb = ds.get_roidb(
             gt=True,
             proposal_file=proposal_file,

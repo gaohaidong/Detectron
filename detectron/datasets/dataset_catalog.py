@@ -201,6 +201,18 @@ _DATASETS = {
             _DATA_DIR + '/VOC2012/annotations/voc_2012_val.json',
         _DEVKIT_DIR:
             _DATA_DIR + '/VOC2012/VOCdevkit2012'
+    },
+    'traffic_train': {
+        _IM_DIR:
+            _DATA_DIR + '/traffic/train',
+        _ANN_FN:
+            _DATA_DIR + '/traffic/train.csv'
+    },
+    'traffic_val': {
+        _IM_DIR:
+            _DATA_DIR + '/traffic/val',
+        _ANN_FN:
+            _DATA_DIR + '/traffic/val.csv'
     }
 }
 
