@@ -18,9 +18,6 @@ FPN:
   FPN_ON: True
   MULTILEVEL_ROIS: True
   MULTILEVEL_RPN: True
-  RPN_ASPECT_RATIOS: (0.333, 0.5, 1, 2, 3)
-  RPN_ANCHOR_START_SIZE: 32
-  COARSEST_STRIDE: 32
 RESNETS:
   STRIDE_1X1: False  # default True for MSRA; False for C2 or Torch models
   TRANS_FUNC: bottleneck_transformation

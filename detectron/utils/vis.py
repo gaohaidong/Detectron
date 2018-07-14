@@ -251,7 +251,7 @@ def vis_one_image_opencv(
 def vis_one_image(
         im, im_name, output_dir, boxes, segms=None, keypoints=None, thresh=0.9,
         kp_thresh=2, dpi=200, box_alpha=0.0, dataset=None, show_class=False,
-        ext='jpg'):
+        ext='jpg', csv_res = '', img_pad=0):
     """Visual debugging of detections."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -297,9 +297,15 @@ def vis_one_image(
             plt.Rectangle((bbox[0], bbox[1]),
                           bbox[2] - bbox[0],
                           bbox[3] - bbox[1],
-                          fill=False, edgecolor='g',
-                          linewidth=0.5, alpha=box_alpha))
-
+                          fill=False, edgecolor='b',
+                          linewidth=1, alpha=box_alpha))
+        if csv_res != '':
+            x1 = 0 if (int(bbox[0]) - img_pad) < 0 else (int(bbox[0]) - img_pad)
+            y1 = 0 if (int(bbox[1]) - img_pad) < 0 else (int(bbox[1]) - img_pad)
+            x2 = (im.shape[1] - 2 * img_pad) if (int(bbox[2]) - img_pad) > (im.shape[1] - 2 * img_pad) else (int(bbox[2]) - img_pad)
+            y2 = (im.shape[0] - 2 * img_pad) if (int(bbox[3]) - img_pad) > (im.shape[0] - 2 * img_pad) else (int(bbox[3]) - img_pad)
+            with open(csv_res, 'a') as f:
+                f.write('{}_{}_{}_{}_{};'.format(int(x1),int(y1),int(x2-x1),int(y2-y1), float(score)))
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,

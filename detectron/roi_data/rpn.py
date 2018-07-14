@@ -56,6 +56,8 @@ def get_rpn_blob_names(is_training=True):
                 'rpn_bbox_inside_weights_wide',
                 'rpn_bbox_outside_weights_wide'
             ]
+        if cfg.RPN.FOCAL_LOSS:
+            blob_names += ['rpn_fg_num','rpn_bg_num']
     return blob_names
 
 
@@ -80,6 +82,8 @@ def add_rpn_blobs(blobs, im_scales, roidb):
             cfg.RPN.STRIDE, cfg.RPN.SIZES, cfg.RPN.ASPECT_RATIOS
         )
         all_anchors = foa.field_of_anchors
+    if cfg.RPN.FOCAL_LOSS:
+        blobs['rpn_fg_num'], blobs['rpn_bg_num'] = 0.0, 0.0
 
     for im_i, entry in enumerate(roidb):
         scale = im_scales[im_i]
@@ -95,20 +99,35 @@ def add_rpn_blobs(blobs, im_scales, roidb):
         # Add RPN targets
         if cfg.FPN.FPN_ON and cfg.FPN.MULTILEVEL_RPN:
             # RPN applied to many feature levels, as in the FPN paper
-            rpn_blobs = _get_rpn_blobs(
-                im_height, im_width, foas, all_anchors, gt_rois
-            )
+            if cfg.RPN.FOCAL_LOSS:
+                rpn_blobs, fg_num, bg_num = _get_rpn_blobs(
+                    im_height, im_width, foas, all_anchors, gt_rois
+                )
+            else:
+                rpn_blobs = _get_rpn_blobs(
+                    im_height, im_width, foas, all_anchors, gt_rois
+                )
             for i, lvl in enumerate(range(k_min, k_max + 1)):
                 for k, v in rpn_blobs[i].items():
                     blobs[k + '_fpn' + str(lvl)].append(v)
         else:
             # Classical RPN, applied to a single feature level
-            rpn_blobs = _get_rpn_blobs(
-                im_height, im_width, [foa], all_anchors, gt_rois
-            )
+            if cfg.RPN.FOCAL_LOSS:
+                rpn_blobs, fg_num, bg_num = _get_rpn_blobs(
+                    im_height, im_width, [foa], all_anchors, gt_rois
+                )
+            else :
+                rpn_blobs = _get_rpn_blobs(
+                    im_height, im_width, [foa], all_anchors, gt_rois
+                )
             for k, v in rpn_blobs.items():
                 blobs[k].append(v)
-
+        if cfg.RPN.FOCAL_LOSS:
+            blobs['rpn_fg_num'] += fg_num
+            blobs['rpn_bg_num'] += bg_num
+    if cfg.RPN.FOCAL_LOSS:
+        blobs['rpn_fg_num'] = blobs['rpn_fg_num'].astype(np.float32)
+        blobs['rpn_bg_num'] = blobs['rpn_bg_num'].astype(np.float32)
     for k, v in blobs.items():
         if isinstance(v, list) and len(v) > 0:
             blobs[k] = np.concatenate(v)
@@ -274,4 +293,10 @@ def _get_rpn_blobs(im_height, im_width, foas, all_anchors, gt_boxes):
                 rpn_bbox_outside_weights_wide=_bbox_outside_weights
             )
         )
-    return blobs_out[0] if len(blobs_out) == 1 else blobs_out
+        num_fg, num_bg = len(fg_inds), len(bg_inds)
+        out_num_fg = np.array([num_fg], dtype=np.float32)
+        out_num_bg = np.array([num_bg], dtype=np.float32)
+    if cfg.RPN.FOCAL_LOSS:
+        return blobs_out[0] if len(blobs_out) == 1 else blobs_out, out_num_fg, out_num_bg
+    else:
+        return blobs_out[0] if len(blobs_out) == 1 else blobs_out

@@ -119,7 +119,7 @@ __C.TRAIN.BBOX_THRESH = 0.5
 # Snapshot (model checkpoint) period
 # Divide by NUM_GPUS to determine actual period (e.g., 20000/8 => 2500 iters)
 # to allow for linear training schedule scaling
-__C.TRAIN.SNAPSHOT_ITERS = 20000
+__C.TRAIN.SNAPSHOT_ITERS = 10000
 
 # Train using these proposals
 # During training, all proposals specified in the file are used (no limit is
@@ -680,6 +680,10 @@ __C.RPN.STRIDE = 16
 # RPN anchor aspect ratios
 __C.RPN.ASPECT_RATIOS = (0.5, 1, 2)
 
+__C.RPN.FOCAL_LOSS = False
+
+__C.RPN.LOSS_ALPHA = 0.25
+__C.RPN.LOSS_GAMMA = 2.0
 
 # ---------------------------------------------------------------------------- #
 # FPN options

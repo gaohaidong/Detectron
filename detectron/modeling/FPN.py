@@ -456,14 +456,28 @@ def add_fpn_rpn_losses(model):
                 ],
                 'rpn_bbox_' + key + '_fpn' + slvl
             )
-        loss_rpn_cls_fpn = model.net.SigmoidCrossEntropyLoss(
-            ['rpn_cls_logits_fpn' + slvl, 'rpn_labels_int32_fpn' + slvl],
-            'loss_rpn_cls_fpn' + slvl,
-            normalize=0,
-            scale=(
-                model.GetLossScale() / cfg.TRAIN.RPN_BATCH_SIZE_PER_IM /
-                cfg.TRAIN.IMS_PER_BATCH
+        if cfg.RPN.FOCAL_LOSS:
+            model.AddMetrics(['rpn_fg_num', 'rpn_bg_num'])
+            loss_rpn_cls_fpn = model.net.SigmoidFocalLoss(
+                ['rpn_cls_logits_fpn' + slvl, 'rpn_labels_int32_fpn' + slvl, 'rpn_fg_num'],
+                'loss_rpn_cls_fpn' + slvl,
+                gamma=cfg.RPN.LOSS_GAMMA,
+                alpha=cfg.RPN.LOSS_ALPHA,
+                num_class=1,
+                scale=(
+                        model.GetLossScale() / cfg.TRAIN.RPN_BATCH_SIZE_PER_IM /
+                        cfg.TRAIN.IMS_PER_BATCH
+                )
             )
+        else:
+            loss_rpn_cls_fpn = model.net.SigmoidCrossEntropyLoss(
+                ['rpn_cls_logits_fpn' + slvl, 'rpn_labels_int32_fpn' + slvl],
+                'loss_rpn_cls_fpn' + slvl,
+                normalize=0,
+                scale=(
+                    model.GetLossScale() / cfg.TRAIN.RPN_BATCH_SIZE_PER_IM /
+                    cfg.TRAIN.IMS_PER_BATCH
+                )
         )
         # Normalization by (1) RPN_BATCH_SIZE_PER_IM and (2) IMS_PER_BATCH is
         # handled by (1) setting bbox outside weights and (2) SmoothL1Loss

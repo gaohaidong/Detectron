@@ -84,6 +84,20 @@ def parse_args():
         type=str
     )
     parser.add_argument(
+        '--img_pad',
+        dest='img_pad',
+        help='image padding when testing',
+        default=0,
+        type=int
+    )
+    parser.add_argument(
+        '--csv_res',
+        dest='csv_res',
+        help='write csv filename',
+        default='',
+        type=str
+    )
+    parser.add_argument(
         'im_or_folder', help='image or folder of images', default=None
     )
     if len(sys.argv) == 1:
@@ -118,7 +132,11 @@ def main(args):
             args.output_dir, '{}'.format(os.path.basename(im_name) + '.pdf')
         )
         logger.info('Processing {} -> {}'.format(im_name, out_name))
+        if args.csv_res != '':
+            with open(args.csv_res, 'a') as f:
+                f.write('\n{},'.format(os.path.basename(im_name)))
         im = cv2.imread(im_name)
+        im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -145,7 +163,9 @@ def main(args):
             box_alpha=0.3,
             show_class=True,
             thresh=0.7,
-            kp_thresh=2
+            kp_thresh=2,
+            csv_res=args.csv_res,
+            img_pad=args.img_pad
         )
 
 

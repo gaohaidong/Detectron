@@ -133,11 +133,22 @@ def add_single_scale_rpn_losses(model):
         model.net.SpatialNarrowAs(
             ['rpn_bbox_' + key + '_wide', 'rpn_bbox_pred'], 'rpn_bbox_' + key
         )
-    loss_rpn_cls = model.net.SigmoidCrossEntropyLoss(
-        ['rpn_cls_logits', 'rpn_labels_int32'],
-        'loss_rpn_cls',
-        scale=model.GetLossScale()
-    )
+    if cfg.RPN.FOCAL_LOSS:
+        model.AddMetrics(['rpn_fg_num', 'rpn_bg_num'])
+        loss_rpn_cls_fpn = model.net.SigmoidFocalLoss(
+            ['rpn_cls_logits', 'rpn_labels_int32', 'rpn_fg_num'],
+            'loss_rpn_cls',
+            gamma=cfg.RPN.LOSS_GAMMA,
+            alpha=cfg.RPN.LOSS_ALPHA,
+            num_class=1,
+            scale= model.GetLossScale()
+        )
+    else:
+        loss_rpn_cls = model.net.SigmoidCrossEntropyLoss(
+            ['rpn_cls_logits', 'rpn_labels_int32'],
+            'loss_rpn_cls',
+            scale=model.GetLossScale()
+        )
     loss_rpn_bbox = model.net.SmoothL1Loss(
         [
             'rpn_bbox_pred', 'rpn_bbox_targets', 'rpn_bbox_inside_weights',
