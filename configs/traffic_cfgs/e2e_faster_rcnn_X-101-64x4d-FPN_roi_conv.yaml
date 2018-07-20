@@ -18,9 +18,6 @@ FPN:
   FPN_ON: True
   MULTILEVEL_ROIS: True
   MULTILEVEL_RPN: True
-  RPN_ASPECT_RATIOS: (0.333, 0.5, 1, 2, 3)
-  RPN_ANCHOR_START_SIZE: 32
-  COARSEST_STRIDE: 32
 RESNETS:
   STRIDE_1X1: False  # default True for MSRA; False for C2 or Torch models
   TRANS_FUNC: bottleneck_transformation
@@ -29,30 +26,30 @@ RESNETS:
 FAST_RCNN:
   ROI_BOX_HEAD: fast_rcnn_heads.add_roi_2mlp_head
   ROI_XFORM_METHOD: RoIAlign
-  ROI_XFORM_RESOLUTION: 28
+  ROI_XFORM_RESOLUTION: 35
   ROI_XFORM_SAMPLING_RATIO: 2
   MLP_HEAD_DIM: 1024
 TRAIN:
-  WEIGHTS: trained_models/e2e_faster_rcnn_X-101-64x4d-FPN_roi_28_fc_1024/train/traffic_train:traffic_val/generalized_rcnn/model_iter59999.pkl
+  WEIGHTS: roi28_new.pkl
   DATASETS: ('traffic_train', 'traffic_val')
-  SCALES: (400,500, 600, 700, 800)
+  SCALES: (500, 600, 700, 800)
   MAX_SIZE: 1333
   IMS_PER_BATCH: 1
-  BATCH_SIZE_PER_IM: 256
+  BATCH_SIZE_PER_IM: 128
   RPN_PRE_NMS_TOP_N: 2000  # Per FPN level
   DATASET_CACHE_PATH: 'detectron/datasets/data/traffic/cache/'
 TEST:
   DATASETS: ('traffic_val',)
   NMS: 0.3
   RPN_PRE_NMS_TOP_N: 1000  # Per FPN level
-  RPN_POST_NMS_TOP_N: 1000
+  RPN_POST_NMS_TOP_N: 300
    # -- Test time augmentation example -- #
   BBOX_AUG:
     ENABLED: True
     SCORE_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     COORD_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     H_FLIP: True
-    SCALES: (400, 500, 600, 700, 800)
+    SCALES: (500, 600, 700, 800)
     MAX_SIZE: 3000
     SCALE_H_FLIP: True
     SCALE_SIZE_DEP: False

@@ -1,4 +1,5 @@
 import numpy as np
+import argparse, sys
 def read_csv(anno_file, conf_thresh=0.99):
     annos = dict()
     num = 0
@@ -85,16 +86,54 @@ def eval_det(gt_info, det_info, iou_thresh = 0.7, if_write_res = False):
                 for bbox in missing_dets[img]:
                     f.write('{}_{}_{}_{};'.format(bbox[0], bbox[1], bbox[2], bbox[3]))
     return right_num
+def xyxy2xywh(res):
+    xywh_res = dict()
+    for im in res.keys():
+        xywh_res[im] = []
+        for bbox in res[im]:
+            xywh_res[im].append([bbox[0], bbox[1], bbox[2] - bbox[0], bbox[3] - bbox[1]])
+    return  xywh_res
+def parse_args():
+    parser = argparse.ArgumentParser(description='End-to-end inference')
+    parser.add_argument(
+        '--val_file',
+        dest='val_file',
+        help='csv file to val',
+        default=None,
+        type=str
+    )
+    parser.add_argument(
+        '--thresh',
+        dest='thresh',
+        help='thresh of results to eval',
+        default=0.9,
+        type=float
+    )
+    parser.add_argument(
+        '--ifxyxy2xywh',
+        dest='ifxyxy2xywh',
+        help='if convert results from xyxy to xywh',
+        default=False,
+        type=bool
+    )
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    return parser.parse_args()
 
-anno_file = 'train_b.csv'
-annos_info, gt_num = read_csv(anno_file)
-res_file = 'val_data_101_roi28_final.csv'
-res_info, det_num = read_csv(res_file)
-sum = 0.0
-print 'gt_num\t', gt_num, 'det_num', det_num
-for iou_thresh in np.arange(0.5, 0.95, 0.05):
-    a = eval_det(annos_info, res_info, iou_thresh)
-    s = 2.0 * a / (gt_num + det_num)
-    print iou_thresh, a, s
-    sum += s
-print 'average res\t', sum / 9
+if __name__ == '__main__':
+    args = parse_args()
+    anno_file = 'test_anno.csv'
+    annos_info, gt_num = read_csv(anno_file)
+    res_file = args.val_file
+    res_info, det_num = read_csv(res_file, args.thresh)
+    if args.ifxyxy2xywh:
+        res_info = xyxy2xywh(res_info)
+    sum = 0.0
+    print 'gt_num\t', gt_num, 'det_num', det_num
+    for iou_thresh in np.arange(0.5, 0.95, 0.05):
+        a = eval_det(annos_info, res_info, iou_thresh, True)
+        s = 2.0 * a / (gt_num + det_num)
+        print iou_thresh, a, s
+        sum += s
+    print 'average res\t', sum / 9

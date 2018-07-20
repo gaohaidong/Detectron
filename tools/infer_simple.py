@@ -126,8 +126,17 @@ def main(args):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
     else:
         im_list = [args.im_or_folder]
-
+    im_done = []
+    if args.csv_res != '' and os.path.exists(args.csv_res):
+        with open(args.csv_res) as f:
+            for line in f.readlines():
+                items = line.strip().split(',')
+                if items[0].endswith('.jpg'):
+                    im_done.append(items[0])
     for i, im_name in enumerate(im_list):
+        print(im_name)
+        if os.path.basename(im_name) in im_done:
+            continue
         out_name = os.path.join(
             args.output_dir, '{}'.format(os.path.basename(im_name) + '.pdf')
         )
@@ -136,7 +145,7 @@ def main(args):
             with open(args.csv_res, 'a') as f:
                 f.write('\n{},'.format(os.path.basename(im_name)))
         im = cv2.imread(im_name)
-        im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
+        # im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -165,7 +174,6 @@ def main(args):
             thresh=0.7,
             kp_thresh=2,
             csv_res=args.csv_res,
-            img_pad=args.img_pad
         )
 
 

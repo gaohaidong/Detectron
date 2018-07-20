@@ -251,7 +251,7 @@ def vis_one_image_opencv(
 def vis_one_image(
         im, im_name, output_dir, boxes, segms=None, keypoints=None, thresh=0.9,
         kp_thresh=2, dpi=200, box_alpha=0.0, dataset=None, show_class=False,
-        ext='jpg', csv_res = '', img_pad=0):
+        ext='jpg', csv_res = ''):
     """Visual debugging of detections."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -300,12 +300,8 @@ def vis_one_image(
                           fill=False, edgecolor='b',
                           linewidth=1, alpha=box_alpha))
         if csv_res != '':
-            x1 = 0 if (int(bbox[0]) - img_pad) < 0 else (int(bbox[0]) - img_pad)
-            y1 = 0 if (int(bbox[1]) - img_pad) < 0 else (int(bbox[1]) - img_pad)
-            x2 = (im.shape[1] - 2 * img_pad) if (int(bbox[2]) - img_pad) > (im.shape[1] - 2 * img_pad) else (int(bbox[2]) - img_pad)
-            y2 = (im.shape[0] - 2 * img_pad) if (int(bbox[3]) - img_pad) > (im.shape[0] - 2 * img_pad) else (int(bbox[3]) - img_pad)
             with open(csv_res, 'a') as f:
-                f.write('{}_{}_{}_{}_{};'.format(int(x1),int(y1),int(x2-x1),int(y2-y1), float(score)))
+                f.write('{}_{}_{}_{}_{};'.format(int(bbox[0]),int(bbox[1]),int(bbox[2] - bbox[0]),int(bbox[3] - bbox[1]), float(score)))
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,
@@ -390,6 +386,6 @@ def vis_one_image(
                     line, color=colors[len(kp_lines) + 1], linewidth=1.0,
                     alpha=0.7)
 
-    output_name = os.path.basename(im_name) + '.' + ext
-    fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
+    # output_name = os.path.basename(im_name) + '.' + ext
+    # fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
     plt.close('all')

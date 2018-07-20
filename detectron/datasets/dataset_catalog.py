@@ -213,6 +213,12 @@ _DATASETS = {
             _DATA_DIR + '/traffic/val',
         _ANN_FN:
             _DATA_DIR + '/traffic/val.csv'
+    },
+    'traffic_test': {
+        _IM_DIR:
+            _DATA_DIR + '/traffic/test',
+        _ANN_FN:
+            _DATA_DIR + '/traffic/test.csv'
     }
 }
 
