@@ -49,7 +49,7 @@ TEST:
     SCORE_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     COORD_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     H_FLIP: True
-    SCALES: (500, 600, 700, 800)
+    SCALES: (400, 500, 600, 700)
     MAX_SIZE: 3000
     SCALE_H_FLIP: True
     SCALE_SIZE_DEP: False

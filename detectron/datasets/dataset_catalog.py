@@ -29,6 +29,7 @@ _DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 # Required dataset entry keys
 _IM_DIR = 'image_directory'
 _ANN_FN = 'annotation_file'
+_ANN_DIR = 'annotations_directory'
 
 # Optional dataset entry keys
 _IM_PREFIX = 'image_prefix'
@@ -219,6 +220,20 @@ _DATASETS = {
             _DATA_DIR + '/traffic/test',
         _ANN_FN:
             _DATA_DIR + '/traffic/test.csv'
+    },
+    'traffic_test_360k': {
+        _IM_DIR:
+            _DATA_DIR + '/traffic/test_360k',
+        _ANN_FN:
+            _DATA_DIR + '/traffic/test_360k_data.csv'
+    },
+    'bupi_train': {
+        _IM_DIR:
+            _DATA_DIR + '/bupi/train',
+        _ANN_FN:
+            _DATA_DIR + '/bupi/train.txt',
+        _ANN_DIR:
+            _DATA_DIR + '/bupi/annotations'
     }
 }
 

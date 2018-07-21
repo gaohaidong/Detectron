@@ -145,7 +145,7 @@ def main(args):
             with open(args.csv_res, 'a') as f:
                 f.write('\n{},'.format(os.path.basename(im_name)))
         im = cv2.imread(im_name)
-        # im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
+        im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -174,6 +174,7 @@ def main(args):
             thresh=0.7,
             kp_thresh=2,
             csv_res=args.csv_res,
+            img_pad=args.img_pad
         )
 
 

@@ -4,6 +4,8 @@ change_names = ['cls_score', 'bbox_pred']
 def read_pkl(pklfile, file_out):
     if os.path.isfile(pklfile):
         pkl = pickle.load(open(pklfile, 'rb'))
+        print(pkl['cfg'])
+        return
         for item in pkl['blobs'].keys():
             for name in change_names:
                 if name + '_' in item:
