@@ -16,7 +16,26 @@ print("Required modules imported.")
 
 MODEL = 'bvlc_googlenet', 'init_net.pb', 'predict_net.pb', 'ilsvrc_2012_mean.npy', 224
 
+from eval_det import read_csv
+import cv2, os
 
+
+def save_img_patches(annos, im_name, ori_img_folder, save_folder):
+    im = cv2.imread(os.path.join(ori_img_folder, im_name))
+    for bbox in annos[im_name]:
+        if bbox[-1] < 0.99:
+            bbox = map(int, bbox)
+            cv2.imwrite(os.path.join(save_folder, \
+                                     '{}_{}_{}_{}_{}.jpg'.format(im_name[:-4], bbox[0], bbox[1], bbox[2], bbox[3])), \
+                        im[bbox[1]:bbox[1]+bbox[3], bbox[0]:bbox[0]+bbox[2]])
+
+patch_dir = 'low_dets'
+annos, num = read_csv('new_roi28.csv', 0.0)
+print(num)
+if not os.path.exists(patch_dir):
+    os.makedirs(patch_dir)
+for im in annos.keys():
+    save_img_patches(annos, im, 'data/test_a/', patch_dir)
 
 # -------------------------------
 # Pre-processing image
