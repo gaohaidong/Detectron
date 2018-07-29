@@ -207,7 +207,7 @@ _DATASETS = {
         _IM_DIR:
             _DATA_DIR + '/traffic/train',
         _ANN_FN:
-            _DATA_DIR + '/traffic/train.csv'
+            _DATA_DIR + '/traffic/train_1w_mod.csv'
     },
     'traffic_val': {
         _IM_DIR:
@@ -219,7 +219,7 @@ _DATASETS = {
         _IM_DIR:
             _DATA_DIR + '/traffic/test',
         _ANN_FN:
-            _DATA_DIR + '/traffic/test.csv'
+            _DATA_DIR + '/traffic/test_anno.csv'
     },
     'traffic_test_360k': {
         _IM_DIR:

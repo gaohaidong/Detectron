@@ -3,7 +3,7 @@ MODEL:
   CONV_BODY: FPN.add_fpn_ResNet101_conv5_body
   NUM_CLASSES: 2
   FASTER_RCNN: True
-NUM_GPUS: 2
+NUM_GPUS: 1
 SOLVER:
   WEIGHT_DECAY: 0.0001
   LR_POLICY: steps_with_decay
@@ -31,8 +31,8 @@ FAST_RCNN:
   MLP_HEAD_DIM: 1024
 TRAIN:
   WEIGHTS: roi28_new.pkl
-  DATASETS: ('traffic_train', 'traffic_val', 'traffic_test', 'traffic_test_360k')
-  SCALES: (400,500, 600, 700)
+  DATASETS: ('traffic_train', 'traffic_val', 'traffic_test')
+  SCALES: (400,500, 600)
   MAX_SIZE: 2333
   IMS_PER_BATCH: 1
   BATCH_SIZE_PER_IM: 256
