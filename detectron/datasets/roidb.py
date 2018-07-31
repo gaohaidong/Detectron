@@ -43,7 +43,7 @@ def combined_roidb_for_training(dataset_names, proposal_files):
     def get_roidb(dataset_name, proposal_file):
         if 'traffic' in dataset_name:
             ds = TrafficDataset(dataset_name)
-        elif 'bupi' in dataset_name:
+        elif 'cloth' in dataset_name:
             ds = XMLDataset(dataset_name)
         else:
             ds = JsonDataset(dataset_name)

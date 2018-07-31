@@ -110,11 +110,11 @@ def add_roi_2mlp_head(model, blob_in, dim_in, spatial_scale):
         sampling_ratio=cfg.FAST_RCNN.ROI_XFORM_SAMPLING_RATIO,
         spatial_scale=spatial_scale
     )
-    model.FC(roi_feat, 'fc6a', dim_in * roi_size * roi_size, hidden_dim)
-    model.Relu('fc6a', 'fc6a')
-    model.FC('fc6a', 'fc7a', hidden_dim, hidden_dim)
-    model.Relu('fc7a', 'fc7a')
-    return 'fc7a', hidden_dim
+    model.FC(roi_feat, 'fc6', dim_in * roi_size * roi_size, hidden_dim)
+    model.Relu('fc6', 'fc6')
+    model.FC('fc6', 'fc7', hidden_dim, hidden_dim)
+    model.Relu('fc7', 'fc7')
+    return 'fc7', hidden_dim
 
 def add_roi_2mlp_head_roi_conv(model, blob_in, dim_in, spatial_scale):
     """Add a ReLU MLP with two hidden layers."""

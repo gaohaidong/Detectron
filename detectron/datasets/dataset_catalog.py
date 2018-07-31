@@ -227,13 +227,13 @@ _DATASETS = {
         _ANN_FN:
             _DATA_DIR + '/traffic/test_360k_data.csv'
     },
-    'bupi_train': {
+    'cloth_train': {
         _IM_DIR:
-            _DATA_DIR + '/bupi/train',
+            _DATA_DIR + '/cloth/train',
         _ANN_FN:
-            _DATA_DIR + '/bupi/train.txt',
+            _DATA_DIR + '/cloth/train/train.txt',
         _ANN_DIR:
-            _DATA_DIR + '/bupi/annotations'
+            _DATA_DIR + '/cloth/train'
     }
 }
 

@@ -55,11 +55,11 @@ def get_traffic_dataset():
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds
 
-def get_bupi_dataset():
+def get_cloth_dataset():
     """A dummy COCO dataset that includes only the 'classes' field."""
     ds = AttrDict()
     classes = [
-        '__background__', 'car'
+        '__background__', 'huibian','qianjie','bianzhadong','quewei','diaojing','cusha','xianyin','quejing','diaogong','zhixi','pobian','lengduan','cashang','bianquejing','maoban','wuzi','mingqianxian','houduan','bianzhenyan','gongsha','zhengneyin','cadong','jiandong','jiama','jingtiaohua','maodong','zhiru','youzi','camao','zhadong','tiaohua','diaowei','houbaoduan','xiuyin','bianquewei','erduo','jiedong','maoli','podong','huangzi','jinsha','zhashu','zhasha','bianbaiyin','jingcusha','weicusha'
     ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds

@@ -103,13 +103,14 @@ class XMLDataset(object):
 
         self.debug_timer = Timer()
         # Set up dataset classes
-        dummy_dataset = dummy_datasets.get_bupi_dataset()
+        dummy_dataset = dummy_datasets.get_cloth_dataset()
         categories = dummy_dataset.classes.values()
         category_ids = range(len(categories))
         logger.info('categories\t{}'.format(categories))
         self.category_to_id_map = dict(zip(categories, category_ids))
         self.classes = categories  
         self.num_classes = len(self.classes)
+        logger.info('num_categories\t{}'.format(self.num_classes))
         self.keypoints = None
         # self._init_keypoints()
         self._class_to_ind = dict(zip(self.classes, xrange(self.num_classes)))
@@ -239,15 +240,16 @@ class XMLDataset(object):
             tmp_obj['bbox'] = [x1, y1, x2, y2]
 
             segms = obj.find('segmentation')
-            if len(segms) == 0:
+
+            if segms == None or len(segms) == 0:
                 polygons = None
+                area = 0
             else:
                 polygons = get_polygon_from_obj(segms)
                 area = get_segmentation_area(segms)
 
             tmp_obj['area'] = area
             tmp_obj['segmentation'] = polygons
-
             tmp_obj['iscrowd'] = False
             valid_objs.append(tmp_obj)
         return valid_objs
@@ -277,10 +279,12 @@ class XMLDataset(object):
                 x1, y1, x2, y2, height, width
             )
 
+
             if x2 > x1 and y2 > y1:
                 obj['clean_bbox'] = [x1, y1, x2, y2]
                 valid_objs.append(obj)
-                valid_segms.append(obj['segmentation'])
+                if obj['segmentation'] != None:
+                    valid_segms.append(obj['segmentation'])
         num_valid_objs = len(valid_objs)
         boxes = np.zeros((num_valid_objs, 4), dtype=entry['boxes'].dtype)
         gt_classes = np.zeros((num_valid_objs), dtype=entry['gt_classes'].dtype)
