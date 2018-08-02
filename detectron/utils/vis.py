@@ -297,8 +297,8 @@ def vis_one_image(
             plt.Rectangle((bbox[0], bbox[1]),
                           bbox[2] - bbox[0],
                           bbox[3] - bbox[1],
-                          fill=False, edgecolor='b',
-                          linewidth=1, alpha=box_alpha))
+                          fill=False, edgecolor='g',
+                          linewidth=3, alpha=box_alpha))
         if csv_res != '':
             x1 = 0 if (int(bbox[0]) - img_pad) < 0 else (int(bbox[0]) - img_pad)
             y1 = 0 if (int(bbox[1]) - img_pad) < 0 else (int(bbox[1]) - img_pad)
@@ -308,9 +308,9 @@ def vis_one_image(
                 f.write('{}_{}_{}_{}_{};'.format(x1, y1,(x2 - x1), (y2 - y1), float(score)))
         if show_class:
             ax.text(
-                bbox[0], bbox[1] - 2,
+                bbox[0], bbox[1] - 17,
                 get_class_string(classes[i], score, dataset),
-                fontsize=3,
+                fontsize=15,
                 family='serif',
                 bbox=dict(
                     facecolor='g', alpha=0.4, pad=0, edgecolor='none'),
@@ -390,6 +390,6 @@ def vis_one_image(
                     line, color=colors[len(kp_lines) + 1], linewidth=1.0,
                     alpha=0.7)
 
-    # output_name = os.path.basename(im_name) + '.' + ext
-    # fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
+    output_name = os.path.basename(im_name) + '.' + ext
+    fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
     plt.close('all')

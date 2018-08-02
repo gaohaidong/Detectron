@@ -120,7 +120,7 @@ def main(args):
         'Models that require precomputed proposals are not supported'
 
     model = infer_engine.initialize_model_from_cfg(args.weights)
-    dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    dummy_cloth_dataset = dummy_datasets.get_cloth_dataset()
 
     if os.path.isdir(args.im_or_folder):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
@@ -168,10 +168,10 @@ def main(args):
             cls_boxes,
             cls_segms,
             cls_keyps,
-            dataset=dummy_coco_dataset,
-            box_alpha=0.3,
+            dataset=dummy_cloth_dataset,
+            box_alpha=1.0,
             show_class=True,
-            thresh=0.7,
+            thresh=0.0001,
             kp_thresh=2,
             csv_res=args.csv_res,
             img_pad=args.img_pad
