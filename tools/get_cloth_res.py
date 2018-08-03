@@ -19,7 +19,7 @@ with open(res_csv) as f:
                     continue
                 if patch_id >= 3 and bbox[0] + bbox[2] < 213:
                     continue
-                if patch_id % 3 != 2 and bbox[1] > 160:
+                if patch_id % 3 != 2 and bbox[1] > 800:
                     continue
                 if patch_id < 6 and bbox[0] > 1067:
                     continue
