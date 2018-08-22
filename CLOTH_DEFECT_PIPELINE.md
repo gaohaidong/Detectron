@@ -1,4 +1,4 @@
-# 布匹缺陷检测解题思路
+# BP解题思路
 
 https://tianchi.aliyun.com/competition/introduction.htm?spm=5176.11165268.5678.1.421964aaxoXX96&raceId=231666
 
