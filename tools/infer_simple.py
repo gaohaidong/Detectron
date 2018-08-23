@@ -98,6 +98,13 @@ def parse_args():
         type=str
     )
     parser.add_argument(
+        '--save_im',
+        dest='save_im',
+        help='if save image',
+        default=False,
+        type=bool
+    )
+    parser.add_argument(
         'im_or_folder', help='image or folder of images', default=None
     )
     if len(sys.argv) == 1:
@@ -174,7 +181,8 @@ def main(args):
             thresh=0.0001,
             kp_thresh=2,
             csv_res=args.csv_res,
-            img_pad=args.img_pad
+            img_pad=args.img_pad,
+            save_im=args.save_im
         )
 
 

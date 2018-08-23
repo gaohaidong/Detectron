@@ -59,7 +59,30 @@ def get_cloth_dataset():
     """A dummy COCO dataset that includes only the 'classes' field."""
     ds = AttrDict()
     classes = [
-        '__background__', 'huibian','qianjie','bianzhadong','quewei','diaojing','cusha','xianyin','quejing','diaogong','zhixi','pobian','lengduan','cashang','bianquejing','maoban','wuzi','mingqianxian','houduan','bianzhenyan','gongsha','zhengneyin','cadong','jiandong','jiama','jingtiaohua','maodong','zhiru','youzi','camao','zhadong','tiaohua','diaowei','houbaoduan','xiuyin','bianquewei','erduo','jiedong','maoli','podong','huangzi','jinsha','zhashu','zhasha','bianbaiyin','jingcusha','weicusha'
-    ]
+        '__background__',
+        # round1 47 cls
+        'lengduan', 'tiaohua', 'wuzi', 'diaojing', 'jinsha', 'jiandong', 'xiuyin', 'huibian', 'quewei', 'maoban',
+        'huangzi', 'zhashu', 'qianjie', 'camao', 'bianzhenyan', 'bianquewei', 'maodong', 'zhengneyin', 'erduo',
+        'bianzhadong', 'cadong', 'zhiru', 'maoli', 'zhixi', 'pobian', 'diaogong', 'diaowei', 'xianyin', 'quejing',
+        'podong', 'weicusha', 'jiedong', 'bianbaiyin', 'cashang', 'cusha', 'jingtiaohua', 'jingcusha', 'zhadong',
+        'gongsha', 'zhasha', 'youzi', 'houbaoduan', 'bianquejing', 'mingqianxian', 'jiama', 'houduan'
+        # round2 60 cls
+        # 'jiama', 'bianbaiyin', 'houbaoduan', 'zhengneyin', 'zhiru', 'mingqianxian', 'shuangsha', 'baoduan',
+        # 'bianquewei', 'jiasha', 'cashang', 'weicusha', 'zhuwang', 'huanshayin', 'qianjie', 'zhixi', 'camao', 'jiandong',
+        # 'tiaohua', 'yuanzhubiyin', 'youwu', 'xianyin', 'zhasha', 'zhashu', 'jingcusha', 'cujie', 'xiuyin', 'diaowei',
+        # 'cuosha', 'cuojing', 'huibian', 'bianquejing', 'shaomaohen', 'diaogong', 'quewei', 'bianzhenyan', 'maodong',
+        # 'pobian', 'weicujie', 'bianzhadong', 'jingtiaohua', 'youzi', 'erduo', 'huangzi', 'biandong', 'jiedong',
+        # 'gongsha', 'maoli', 'jinsha', 'maoban', 'houduan', 'wuzi', 'quejing', 'lengduan', 'cadong', 'zhadong', 'podong',
+        # 'cusha', 'diaojing'
+        # merge 54 cls
+        # 'jiama', 'bianbaiyin', 'houbaoduan', 'zhengneyin', 'zhiru', 'mingqianxian', 'shuangsha', 'baoduan',
+        # 'jiasha', 'cashang', 'weicusha', 'zhuwang', 'huanshayin', 'qianjie', 'zhixi', 'camao', 'jiandong',
+        # 'tiaohua', 'yuanzhubiyin', 'youwu', 'xianyin', 'zhasha', 'zhashu', 'jingcusha', 'cujie', 'xiuyin', 'diaowei',
+        # 'cuosha', 'cuojing', 'huibian', 'shaomaohen', 'diaogong', 'quewei', 'bianzhenyan', 'maodong',
+        # 'pobian', 'weicujie', 'wuzi', 'erduo', 'biandong', 'jiedong',
+        # 'gongsha', 'maoli', 'jinsha', 'maoban', 'houduan', 'quejing', 'lengduan', 'cadong', 'zhadong', 'podong',
+        # 'cusha', 'diaojing'
+
+        ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds

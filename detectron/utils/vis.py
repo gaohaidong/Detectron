@@ -251,7 +251,7 @@ def vis_one_image_opencv(
 def vis_one_image(
         im, im_name, output_dir, boxes, segms=None, keypoints=None, thresh=0.9,
         kp_thresh=2, dpi=200, box_alpha=0.0, dataset=None, show_class=False,
-        ext='jpg', csv_res = '', img_pad = 0):
+        ext='jpg', csv_res = '', img_pad = 0, save_im = False):
     """Visual debugging of detections."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -291,7 +291,17 @@ def vis_one_image(
         score = boxes[i, -1]
         if score < thresh:
             continue
-
+        if csv_res != '':
+            x1 = 0 if (int(bbox[0]) - img_pad) < 0 else (int(bbox[0]) - img_pad)
+            y1 = 0 if (int(bbox[1]) - img_pad) < 0 else (int(bbox[1]) - img_pad)
+            x2 = (im.shape[1] - 2 * img_pad) if (int(bbox[2]) - img_pad)>(im.shape[1] - 2 * img_pad) else (int(bbox[2]) - img_pad)
+            y2 = (im.shape[0] - 2 * img_pad) if (int(bbox[3]) - img_pad)>(im.shape[0] - 2 * img_pad) else (int(bbox[3]) - img_pad)
+            with open(csv_res, 'a') as f:
+                f.write('{}_{}_{}_{}_{}_{};'.format(x1, y1,(x2 - x1), (y2 - y1), dataset.classes[classes[i]], float(score)))
+        if not save_im:
+            continue
+        if score < 0.1:
+            continue
         # show box (off by default)
         ax.add_patch(
             plt.Rectangle((bbox[0], bbox[1]),
@@ -299,13 +309,6 @@ def vis_one_image(
                           bbox[3] - bbox[1],
                           fill=False, edgecolor='g',
                           linewidth=3, alpha=box_alpha))
-        if csv_res != '':
-            x1 = 0 if (int(bbox[0]) - img_pad) < 0 else (int(bbox[0]) - img_pad)
-            y1 = 0 if (int(bbox[1]) - img_pad) < 0 else (int(bbox[1]) - img_pad)
-            x2 = (im.shape[1] - 2 * img_pad) if (int(bbox[2]) - img_pad)>(im.shape[1] - 2 * img_pad) else (int(bbox[2]) - img_pad)
-            y2 = (im.shape[0] - 2 * img_pad) if (int(bbox[3]) - img_pad)>(im.shape[0] - 2 * img_pad) else (int(bbox[3]) - img_pad)
-            with open(csv_res, 'a') as f:
-                f.write('{}_{}_{}_{}_{};'.format(x1, y1,(x2 - x1), (y2 - y1), float(score)))
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 17,
@@ -389,7 +392,7 @@ def vis_one_image(
                 plt.setp(
                     line, color=colors[len(kp_lines) + 1], linewidth=1.0,
                     alpha=0.7)
-
-    output_name = os.path.basename(im_name) + '.' + ext
-    fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
-    plt.close('all')
+    if save_im:
+        output_name = os.path.basename(im_name) + '.' + ext
+        fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
+        plt.close('all')

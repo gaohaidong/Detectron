@@ -1,10 +1,13 @@
-
 #!/usr/bin/env bash
-export CUDA_VISIBLE_DEVICES=1
+CSVFILE=round1_test_b2.csv
+export CUDA_VISIBLE_DEVICES=2
 python2 tools/infer_simple.py \
-    --cfg configs/cloth_cfgs/e2e_faster_rcnn_X-101-64x4d-FPN.yaml \
-    --output-dir val-visualizations \
+    --cfg configs/cloth_cfgs/retinanet_X-101-64x4d-FPN_2x.yaml \
+    --output-dir val47-visualizations \
     --image-ext jpg \
-    --csv_res cloth-x101-crop-test-bb.csv \
-    --wts trained_models/e2e_faster_rcnn_X-101-64x4d-FPN/train/cloth_train/generalized_rcnn/model_final.pkl \
-    /data/02Cloth/crop_test_bb/
+    --csv_res  $CSVFILE\
+    --wts ret-x-101-new.pkl \
+    --save_im True \
+    /data/02cloth/XuelangFiles/xuelang_round1_test_b #xuelang_round2_test_a_20180809
+
+python2 tools/get_cloth_res_round2_det_prob.py --csv_file $CSVFILE
