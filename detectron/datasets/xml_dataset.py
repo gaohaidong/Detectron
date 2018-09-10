@@ -229,18 +229,19 @@ class XMLDataset(object):
         valid_objs = []
         for obj in objs:
             cls_name = obj.find('name').text.lower()
-            if cls_name == 'bianzhadong':
-                cls_name = 'zhadong'
-            if cls_name == 'bianquejing':
-                cls_name = 'quejing'
-            if cls_name == 'bianquewei':
-                cls_name = 'quewei'
-            if cls_name == 'jingtiaohua':
-                cls_name = 'tiaohua'
-            if cls_name == 'huangzi':
-                cls_name = 'wuzi'
-            if cls_name == 'youzi':
-                cls_name = 'wuzi'
+            if cfg.MODEL.NUM_CLASSES == 21:
+                # if cls_name == 'bianzhadong':
+                #     cls_name = 'zhadong'
+                # if cls_name == 'bianquejing':
+                #     cls_name = 'quejing'
+                # if cls_name == 'bianquewei':
+                #     cls_name = 'quewei'
+                # if cls_name == 'jingtiaohua':
+                #     cls_name = 'tiaohua'
+                if cls_name == 'huangzi':
+                    cls_name = 'wuzi'
+                if cls_name == 'youzi':
+                    cls_name = 'wuzi'
             if cls_name not in self.classes:
                 logger.info('obj class {} not in classname list {}'.format(cls_name, self.classes))
                 continue

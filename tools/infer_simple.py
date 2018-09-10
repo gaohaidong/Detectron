@@ -32,6 +32,7 @@ import logging
 import os
 import sys
 import time
+from tqdm import tqdm
 
 from caffe2.python import workspace
 
@@ -134,13 +135,15 @@ def main(args):
     else:
         im_list = [args.im_or_folder]
     im_done = []
+    if not os.path.exists(os.path.dirname(args.csv_res)):
+        os.makedirs(os.path.dirname(args.csv_res))
     if args.csv_res != '' and os.path.exists(args.csv_res):
         with open(args.csv_res) as f:
             for line in f.readlines():
                 items = line.strip().split(',')
-                if items[0].endswith('.jpg'):
+                if items[0].endswith('.jpg') and items[1] != '':
                     im_done.append(items[0])
-    for i, im_name in enumerate(im_list):
+    for i, im_name in tqdm(enumerate(im_list)):
         print(im_name)
         if os.path.basename(im_name) in im_done:
             continue
@@ -182,7 +185,7 @@ def main(args):
             kp_thresh=2,
             csv_res=args.csv_res,
             img_pad=args.img_pad,
-            save_im=args.save_im
+            save_im=bool(args.save_im)
         )
 
 

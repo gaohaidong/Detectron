@@ -23,6 +23,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from detectron.utils.collections import AttrDict
+from detectron.core.config import cfg
 
 
 def get_coco_dataset():
@@ -58,31 +59,33 @@ def get_traffic_dataset():
 def get_cloth_dataset():
     """A dummy COCO dataset that includes only the 'classes' field."""
     ds = AttrDict()
-    classes = [
-        '__background__',
-        # round1 47 cls
-        'lengduan', 'tiaohua', 'wuzi', 'diaojing', 'jinsha', 'jiandong', 'xiuyin', 'huibian', 'quewei', 'maoban',
-        'huangzi', 'zhashu', 'qianjie', 'camao', 'bianzhenyan', 'bianquewei', 'maodong', 'zhengneyin', 'erduo',
-        'bianzhadong', 'cadong', 'zhiru', 'maoli', 'zhixi', 'pobian', 'diaogong', 'diaowei', 'xianyin', 'quejing',
-        'podong', 'weicusha', 'jiedong', 'bianbaiyin', 'cashang', 'cusha', 'jingtiaohua', 'jingcusha', 'zhadong',
-        'gongsha', 'zhasha', 'youzi', 'houbaoduan', 'bianquejing', 'mingqianxian', 'jiama', 'houduan'
-        # round2 60 cls
-        # 'jiama', 'bianbaiyin', 'houbaoduan', 'zhengneyin', 'zhiru', 'mingqianxian', 'shuangsha', 'baoduan',
-        # 'bianquewei', 'jiasha', 'cashang', 'weicusha', 'zhuwang', 'huanshayin', 'qianjie', 'zhixi', 'camao', 'jiandong',
-        # 'tiaohua', 'yuanzhubiyin', 'youwu', 'xianyin', 'zhasha', 'zhashu', 'jingcusha', 'cujie', 'xiuyin', 'diaowei',
-        # 'cuosha', 'cuojing', 'huibian', 'bianquejing', 'shaomaohen', 'diaogong', 'quewei', 'bianzhenyan', 'maodong',
-        # 'pobian', 'weicujie', 'bianzhadong', 'jingtiaohua', 'youzi', 'erduo', 'huangzi', 'biandong', 'jiedong',
-        # 'gongsha', 'maoli', 'jinsha', 'maoban', 'houduan', 'wuzi', 'quejing', 'lengduan', 'cadong', 'zhadong', 'podong',
-        # 'cusha', 'diaojing'
-        # merge 54 cls
-        # 'jiama', 'bianbaiyin', 'houbaoduan', 'zhengneyin', 'zhiru', 'mingqianxian', 'shuangsha', 'baoduan',
-        # 'jiasha', 'cashang', 'weicusha', 'zhuwang', 'huanshayin', 'qianjie', 'zhixi', 'camao', 'jiandong',
-        # 'tiaohua', 'yuanzhubiyin', 'youwu', 'xianyin', 'zhasha', 'zhashu', 'jingcusha', 'cujie', 'xiuyin', 'diaowei',
-        # 'cuosha', 'cuojing', 'huibian', 'shaomaohen', 'diaogong', 'quewei', 'bianzhenyan', 'maodong',
-        # 'pobian', 'weicujie', 'wuzi', 'erduo', 'biandong', 'jiedong',
-        # 'gongsha', 'maoli', 'jinsha', 'maoban', 'houduan', 'quejing', 'lengduan', 'cadong', 'zhadong', 'podong',
-        # 'cusha', 'diaojing'
+    if cfg.MODEL.NUM_CLASSES == 47:# round1 47 cls
+        classes = [
+            '__background__',
+            'lengduan', 'tiaohua', 'wuzi', 'diaojing', 'jinsha', 'jiandong', 'xiuyin', 'huibian', 'quewei', 'maoban',
+            'huangzi', 'zhashu', 'qianjie', 'camao', 'bianzhenyan', 'bianquewei', 'maodong', 'zhengneyin', 'erduo',
+            'bianzhadong', 'cadong', 'zhiru', 'maoli', 'zhixi', 'pobian', 'diaogong', 'diaowei', 'xianyin', 'quejing',
+            'podong', 'weicusha', 'jiedong', 'bianbaiyin', 'cashang', 'cusha', 'jingtiaohua', 'jingcusha', 'zhadong',
+            'gongsha', 'zhasha', 'youzi', 'houbaoduan', 'bianquejing', 'mingqianxian', 'jiama', 'houduan'
+        ]
 
+    elif cfg.MODEL.NUM_CLASSES == 60:  # round1&2 60 cls
+        classes = [
+            '__background__',
+            'jiama', 'bianbaiyin', 'houbaoduan', 'zhengneyin', 'zhiru', 'mingqianxian', 'shuangsha', 'baoduan',
+            'bianquewei', 'jiasha', 'cashang', 'weicusha', 'zhuwang', 'huanshayin', 'qianjie', 'zhixi', 'camao', 'jiandong',
+            'tiaohua', 'yuanzhubiyin', 'youwu', 'xianyin', 'zhasha', 'zhashu', 'jingcusha', 'cujie', 'xiuyin', 'diaowei',
+            'cuosha', 'cuojing', 'huibian', 'bianquejing', 'shaomaohen', 'diaogong', 'quewei', 'bianzhenyan', 'maodong',
+            'pobian', 'weicujie', 'bianzhadong', 'jingtiaohua', 'youzi', 'erduo', 'huangzi', 'biandong', 'jiedong',
+            'gongsha', 'maoli', 'jinsha', 'maoban', 'houduan', 'wuzi', 'quejing', 'lengduan', 'cadong', 'zhadong', 'podong',
+            'cusha', 'diaojing'
+        ]
+    elif cfg.MODEL.NUM_CLASSES == 21:  # training obj num > 10
+        classes = [
+            '__background__',
+            'cashang', 'lengduan', 'huibian', 'bianzhenyan', 'pobian', 'gongsha', 'qianjie', 'podong',
+            'erduo', 'bianzhadong', 'wuzi', 'quewei', 'maoban', 'quejing', 'zhadong', 'maodong', 'zhixi',
+            'tiaohua', 'diaojing', 'cadong'
         ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds

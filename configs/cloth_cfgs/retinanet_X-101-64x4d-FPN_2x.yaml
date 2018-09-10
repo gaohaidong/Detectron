@@ -1,7 +1,7 @@
 MODEL:
   TYPE: retinanet
   CONV_BODY: FPN.add_fpn_ResNet101_conv5_body
-  NUM_CLASSES: 47
+  NUM_CLASSES: 60
 NUM_GPUS: 2
 SOLVER:
   WEIGHT_DECAY: 0.0001
@@ -31,9 +31,9 @@ RETINANET:
   LOSS_GAMMA: 2.0
   LOSS_ALPHA: 0.25
 TRAIN:
-  WEIGHTS:  ret-x-101-backbone.pkl
+  WEIGHTS: trained_models/retinanet_X-101-64x4d-FPN_60cls_newanno/train/cloth_train/retinanet/model_iter109999.pkl
   DATASETS: ('cloth_train',)
-  SCALES: (500,800)
+  SCALES: (500,600,700,800,900)
   MAX_SIZE: 2333
   IMS_PER_BATCH: 1
   BATCH_SIZE_PER_IM: 32

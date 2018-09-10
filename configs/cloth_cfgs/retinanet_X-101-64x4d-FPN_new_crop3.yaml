@@ -1,65 +1,66 @@
 MODEL:
-  TYPE: generalized_rcnn
+  TYPE: retinanet
   CONV_BODY: FPN.add_fpn_ResNet101_conv5_body
   NUM_CLASSES: 60
-  FASTER_RCNN: True
 NUM_GPUS: 1
 SOLVER:
   WEIGHT_DECAY: 0.0001
   LR_POLICY: steps_with_decay
-  # 1x schedule (note TRAIN.IMS_PER_BATCH: 1)
   BASE_LR: 0.001
   GAMMA: 0.1
   MAX_ITER: 180000
-  STEPS: [0, 80000, 120000]
-RPN:
-  FOCAL_LOSS: True
+  STEPS: [0, 120000, 160000]
 FPN:
   FPN_ON: True
-  MULTILEVEL_ROIS: True
   MULTILEVEL_RPN: True
-  RPN_ASPECT_RATIOS: (0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0)
+  RPN_MAX_LEVEL: 5
+  RPN_MIN_LEVEL: 3
+  COARSEST_STRIDE: 128
+  EXTRA_CONV_LEVELS: True
 RESNETS:
   STRIDE_1X1: False  # default True for MSRA; False for C2 or Torch models
   TRANS_FUNC: bottleneck_transformation
   NUM_GROUPS: 64
   WIDTH_PER_GROUP: 4
-FAST_RCNN:
-  ROI_BOX_HEAD: fast_rcnn_heads.add_roi_2mlp_head
-  ROI_XFORM_METHOD: RoIAlign
-  ROI_XFORM_RESOLUTION: 14
-  ROI_XFORM_SAMPLING_RATIO: 2
-  MLP_HEAD_DIM: 128
+RETINANET:
+  RETINANET_ON: True
+  NUM_CONVS: 4
+  ASPECT_RATIOS: (0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0)
+  SCALES_PER_OCTAVE: 4
+  ANCHOR_SCALE: 5
+  LOSS_GAMMA: 2.0
+  LOSS_ALPHA: 0.25
 TRAIN:
-  WEIGHTS: imagenet_models/X-101-64x4d.pkl
+  WEIGHTS: ret-x-101-backbone.pkl
   DATASETS: ('cloth_train',)
-  SCALES: (500, 600, 700, 800)
+  SCALES: (500,600,700,800)
   MAX_SIZE: 2333
   IMS_PER_BATCH: 1
   BATCH_SIZE_PER_IM: 32
   RPN_BATCH_SIZE_PER_IM: 32
-  RPN_PRE_NMS_TOP_N: 500  # Per FPN level
+  RPN_PRE_NMS_TOP_N: 2000  # Per FPN level
   DATASET_CACHE_PATH: 'detectron/datasets/data/cloth/cache/'
+  RPN_STRADDLE_THRESH: -1  # default 0
 TEST:
   DATASETS: ('cloth_train',)
   NMS: 0.3
-  RPN_PRE_NMS_TOP_N: 100  # Per FPN level
-  RPN_POST_NMS_TOP_N: 20
+  RPN_PRE_NMS_TOP_N: 1000  # Per FPN level
+  RPN_POST_NMS_TOP_N: 100
 
-   # -- Test time augmentation example -- #
+  # -- Test time augmentation example -- #
   BBOX_AUG:
     ENABLED: True
     SCORE_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     COORD_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     H_FLIP: True
-    SCALES: ( 960, 1200)
+    SCALES: ( 250, 320, 500, 640, 900, 1280, 1920)
     MAX_SIZE: 80000
 
 
     SCALE_H_FLIP: True
     SCALE_SIZE_DEP: False
     AREA_TH_LO: 50   # 50^2
-    AREA_TH_HI: 250000  # 180^2
+    AREA_TH_HI: 25000000  # 180^2
     ASPECT_RATIOS: ()
     ASPECT_RATIO_H_FLIP: False
   BBOX_VOTE:

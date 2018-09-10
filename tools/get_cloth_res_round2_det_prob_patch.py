@@ -1,5 +1,5 @@
 import numpy as np
-import argparse, sys
+import argparse, sys, os
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -30,6 +30,13 @@ def parse_args():
         type=str
     )
     parser.add_argument(
+        '--crop_size',
+        dest='crop_size',
+        help='crop_size_rate',
+        default=2,
+        type=int
+    )
+    parser.add_argument(
         '--thresh',
         dest='thresh',
         help='thresh for result',
@@ -45,16 +52,21 @@ if __name__ == '__main__':
     args = parse_args()
     res_csv = args.res_csv
     conf_thresh = args.thresh
-    round2_csv = '{}_crop_2.csv'.format(res_csv[:-4])
+    round2_csv = os.path.join(os.path.dirname(args.res_csv), 'crop_{}.csv'.format(args.crop_size))
     defect_codes = {'zhadong':1, 'bianzhadong':1, 'maoban':2, 'cadong':3, 'maodong':4, 'zhixi':5, 'diaojing':6,'quejing':7, 'bianquejing':7, 'tiaohua':8, 'jingtiaohua':8, 'youzi':9, 'wuzi':9, 'huangzi':9, 'youwu':9}
     defect_codes_imgs = [dict() for i in range(11)]
     labels = ['norm'] + ['defect_{}'.format(i) for i in range(1,11)]
     imgs = []
     max_thresh = []
+    crop_size = args.crop_size
+    crop_strde = crop_size + 1
+    im_size = [1920, 2560]
     with open(res_csv) as f:
         for line in f.readlines():
             items = line.strip().split(',')
             if items[0][-4:] == '.jpg':
+                if items[1] == '':
+                    continue
                 patch_id = int(items[0][items[0].rfind('_') + 1: items[0].rfind('.')])
                 im_name = items[0][:items[0].rfind('_')]
                 if im_name not in imgs:
@@ -67,13 +79,13 @@ if __name__ == '__main__':
                     if box == '':
                         continue
                     bbox = box.split('_')
-                    if patch_id % 3 != 0 and int(bbox[1]) + int(bbox[3]) < 160:
+                    if patch_id % crop_strde != 0 and int(bbox[1]) + int(bbox[3]) < (im_size[0] / crop_size - im_size[0] / crop_strde) / 2:
                         continue
-                    if patch_id >= 3 and int(bbox[0]) + int(bbox[2]) < 213:
+                    if patch_id >= crop_strde and int(bbox[0]) + int(bbox[2]) < (im_size[1] / crop_size - im_size[1] / crop_strde) / 2:
                         continue
-                    if patch_id % 3 != 2 and int(bbox[1]) > 800:
+                    if patch_id % crop_strde != crop_strde - 1 and int(bbox[1]) > (im_size[0] / crop_size - im_size[0] / crop_strde) / 2 + im_size[0] / crop_strde:
                         continue
-                    if patch_id < 6 and int(bbox[0]) > 1067:
+                    if patch_id < crop_strde * (crop_strde - 1) and int(bbox[0]) > (im_size[1] / crop_size - im_size[1] / crop_strde) / 2 + im_size[1] / crop_strde:
                         continue
                     thresh = float(box.split('_')[-1])
                     if thresh > conf_thresh:

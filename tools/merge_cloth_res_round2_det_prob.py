@@ -1,14 +1,28 @@
 import numpy as np
-import argparse, sys
+import argparse, sys, os
 
 
 defect_codes_imgs = dict()
 merged_codes_imgs = dict()
 labels = ['norm'] + ['defect_{}'.format(i) for i in range(1,11)]
 
-if __name__ == '__main__':
+def parse_args():
+    parser = argparse.ArgumentParser(description='End-to-end inference')
+    parser.add_argument(
+        '--res_dir',
+        dest='res_dir',
+        help='csv file dir to val',
+        default=None,
+        type=str
+    )
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    return parser.parse_args()
 
-    res_csvs = ['cloth-ret-x-101-round2_scale_round2_det_prob_mergejingwei.csv', 'cloth-ret-x-101-round2_crop_2_scale_round2_det_prob_crop_2.csv']
+if __name__ == '__main__':
+    args = parse_args()
+    res_csvs = [os.path.join(args.res_dir, 'ori.csv'), os.path.join(args.res_dir, 'crop_3.csv')]
 
     for res_csv in res_csvs:
         with open(res_csv) as f:
@@ -29,8 +43,8 @@ if __name__ == '__main__':
         merged_codes_imgs[img][0] = 1.0
         for i in range(1, 11):
             merged_codes_imgs[img][0] *= 1 - merged_codes_imgs[img][i]
-
-    merged_csv = 'merged_scale.csv'
+    merged_csv = os.path.join(args.res_dir, 'merged.csv')
+    # merged_csv = '{}_{}.csv'.format(res_csvs[0], res_csvs[1])
 
     with open(merged_csv, 'w') as f:
         f.write('filename|defect,probability\n')

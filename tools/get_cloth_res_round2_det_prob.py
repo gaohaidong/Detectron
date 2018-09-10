@@ -1,5 +1,5 @@
 import numpy as np
-import argparse, sys
+import argparse, sys, os
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     args = parse_args()
     res_csv = args.res_csv
     conf_thresh = args.thresh
-    round2_csv = '{}_round2_det_prob.csv'.format(res_csv[:-4])
+    round2_csv = os.path.join(os.path.dirname(args.res_csv), 'ori.csv')
     defect_codes = {'zhadong':1, 'bianzhadong':1, 'maoban':2, 'cadong':3, 'maodong':4, 'zhixi':5, 'diaojing':6,'quejing':7, 'bianquejing':7, 'tiaohua':8, 'jingtiaohua':8, 'youzi':9, 'wuzi':9, 'huangzi':9, 'youwu':9}
     defect_codes_imgs = [dict() for i in range(11)]
     labels = ['norm'] + ['defect_{}'.format(i) for i in range(1,11)]
@@ -54,6 +54,8 @@ if __name__ == '__main__':
         for line in f.readlines():
             items = line.strip().split(',')
             if items[0][-4:] == '.jpg':
+                if items[1] == '':
+                    continue
                 imgs.append(items[0])
                 boxes = items[1].split(';')
                 max_thresh = [0.0 for i in range(11)]
