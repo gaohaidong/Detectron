@@ -1,18 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2017-present, Facebook, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 ##############################################################################
 
 """Perform inference on a single image or all images with a certain extension
@@ -22,7 +9,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 from collections import defaultdict
 import argparse
@@ -72,15 +59,8 @@ def parse_args():
     parser.add_argument(
         '--output-dir',
         dest='output_dir',
-        help='directory for visualization pdfs (default: /tmp/infer_simple)',
-        default='/tmp/infer_simple',
-        type=str
-    )
-    parser.add_argument(
-        '--image-ext',
-        dest='image_ext',
-        help='image file name extension (default: jpg)',
-        default='jpg',
+        help='directory for visualization results',
+        default='.',
         type=str
     )
     parser.add_argument(
@@ -111,7 +91,11 @@ def parse_args():
         type=float
     )
     parser.add_argument(
-        'im_or_folder', help='image or folder of images', default=None
+        '--source', 
+        dest='source',
+        help='source for surveillance video', 
+        default='rtmp://rtmp.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.h',
+        type=str
     )
     if len(sys.argv) == 1:
         parser.print_help()
@@ -134,18 +118,16 @@ def main(args):
 
     model = infer_engine.initialize_model_from_cfg(args.weights)
     dummy_coco_dataset = dummy_datasets.get_coco_dataset()
-
-    if os.path.isdir(args.im_or_folder):
-        im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
-    else:
-        im_list = [args.im_or_folder]
-
-    for i, im_name in enumerate(im_list):
-        out_name = os.path.join(
-            args.output_dir, '{}'.format(os.path.basename(im_name) + '.' + args.output_ext)
-        )
-        logger.info('Processing {} -> {}'.format(im_name, out_name))
-        im = cv2.imread(im_name)
+    fourcc = cv2.VideoWriter_fourcc('I', '4', '2', '0')
+    cap = cv2.VideoCapture(args.source)
+    size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+            int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    out = cv2.VideoWriter('{}/181210.avi'.format(args.output_dir), fourcc, 25, size)
+    
+    while (cap.isOpened()):
+        ret, im = cap.read()
+        if ret == False:
+            break
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -155,27 +137,22 @@ def main(args):
         logger.info('Inference time: {:.3f}s'.format(time.time() - t))
         for k, v in timers.items():
             logger.info(' | {}: {:.3f}s'.format(k, v.average_time))
-        if i == 0:
-            logger.info(
-                ' \ Note: inference on the first image will be slower than the '
-                'rest (caches and auto-tuning need to warm up)'
-            )
+        
 
-        vis_utils.vis_one_image(
-            im[:, :, ::-1],  # BGR -> RGB for visualization
-            im_name,
-            args.output_dir,
+        im = vis_utils.vis_one_image_opencv(
+            im,  # BGR -> RGB for visualization
             cls_boxes,
             cls_segms,
             cls_keyps,
             dataset=dummy_coco_dataset,
-            box_alpha=0.3,
             show_class=True,
             thresh=args.thresh,
-            kp_thresh=args.kp_thresh,
-            ext=args.output_ext,
-            out_when_no_box=args.out_when_no_box
+            kp_thresh=args.kp_thresh
         )
+        cv2.imshow('im', im)
+        cv2.waitKey(1)
+        out.write(im)
+    out.release()
 
 
 if __name__ == '__main__':
