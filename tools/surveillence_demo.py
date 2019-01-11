@@ -19,7 +19,7 @@ import logging
 import os
 import sys
 import time
-
+import numpy as np
 from caffe2.python import workspace
 
 from detectron.core.config import assert_and_infer_cfg
@@ -94,7 +94,10 @@ def parse_args():
         '--source', 
         dest='source',
         help='source for surveillance video', 
-        default='rtmp://rtmp.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.h',
+        # default='http://hls.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.hd.m3u8',
+        # default='rtmp://rtmp.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.hd',
+        default='rtsp://admin:gt121314@172.16.5.7:554/onvif1',
+        # default='rtsp://10.186.88.1:554/onvif3',
         type=str
     )
     if len(sys.argv) == 1:
@@ -119,11 +122,16 @@ def main(args):
     model = infer_engine.initialize_model_from_cfg(args.weights)
     dummy_coco_dataset = dummy_datasets.get_coco_dataset()
     fourcc = cv2.VideoWriter_fourcc('I', '4', '2', '0')
+    # fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
+    import os
+    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;0"    
     cap = cv2.VideoCapture(args.source)
     size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
             int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    out = cv2.VideoWriter('{}/181210.avi'.format(args.output_dir), fourcc, 25, size)
-    
+    logger.info('Surveillance video size {}'.format(size))
+    out = cv2.VideoWriter('{}/181224.avi'.format(args.output_dir), fourcc, 25, size)
+    out1 = cv2.VideoWriter('{}/181224_ori.avi'.format(args.output_dir), fourcc, 25, size)
+  
     while (cap.isOpened()):
         ret, im = cap.read()
         if ret == False:
@@ -139,7 +147,7 @@ def main(args):
             logger.info(' | {}: {:.3f}s'.format(k, v.average_time))
         
 
-        im = vis_utils.vis_one_image_opencv(
+        im_visual = vis_utils.vis_one_image_opencv(
             im,  # BGR -> RGB for visualization
             cls_boxes,
             cls_segms,
@@ -149,10 +157,55 @@ def main(args):
             thresh=args.thresh,
             kp_thresh=args.kp_thresh
         )
-        cv2.imshow('im', im)
+        out1.write(im)
+        qrcode_size = 300
+        im_qrcode_old = im_visual[0:qrcode_size, 0:qrcode_size]
+        im_qrcode = im_qrcode_old
+        
+        if cls_keyps is not None:
+            mid_chest = [(cls_keyps[1][0][0][5] + cls_keyps[1][0][0][4]) / 2 , (cls_keyps[1][0][1][5] + cls_keyps[1][0][1][4]) / 2]
+            shoulder_width = abs(cls_keyps[1][0][0][5] - cls_keyps[1][0][0][4])
+            im_qrcode = im[int(mid_chest[1] - shoulder_width * 0.2):int(mid_chest[1] + shoulder_width * 1.), \
+            int(mid_chest[0] - shoulder_width * 0.5) : int(mid_chest[0] + shoulder_width * 0.5)]
+            if im_qrcode.size > 10:
+                im_qrcode = cv2.resize(im_qrcode, (qrcode_size, qrcode_size))
+                # cv2.imshow('im_qrcode', im_qrcode).
+
+
+                # cv2.imwrite('im_qrcode.png', im_qrcode)
+                # im_qrcode_old = im_qrcode
+                # # cv2.waitKey(1)
+                # import zbar
+                # from PIL import Image
+                # scanner = zbar.ImageScanner()
+                # scanner.parse_config("enable")
+                # img = Image.open('im_qrcode.png').convert('L')
+                # qrCode = zbar.Image(300, 300, 'Y800', img.tobytes())
+                # scanner.scan(qrCode)
+                # data = 'qrcode:'
+                # for s in qrCode:
+                #     data += s.data
+                # del img
+                # print(data)
+                from pyzbar import pyzbar
+                barcodes = pyzbar.decode(im_qrcode)
+                for barcode in barcodes:
+                    (x, y, w, h) = barcode.rect
+                    im_qrcode = cv2.rectangle(im_qrcode, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                    barcodeData = barcode.data.decode("utf-8")
+                    # barcodeType = barcode.type
+            
+                    print(barcodeData)
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+
+                    im_visual = cv2.putText(im_visual, 'qrcode:' + barcodeData, (0, qrcode_size+30), font, 1.2, (0, 255, 0), 2)
+                im_visual[0:qrcode_size, 0:qrcode_size] = im_qrcode
+        im_visual = cv2.resize(im_visual,(1920,1080))
+        cv2.imshow('im_visual', im_visual)
         cv2.waitKey(1)
-        out.write(im)
+        out.write(im_visual)
     out.release()
+    out1.release()
 
 
 if __name__ == '__main__':
