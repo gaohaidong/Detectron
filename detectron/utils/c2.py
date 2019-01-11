@@ -22,11 +22,13 @@ from __future__ import unicode_literals
 
 from six import string_types
 import contextlib
+import subprocess
 
 from caffe2.proto import caffe2_pb2
 from caffe2.python import core
 from caffe2.python import dyndep
 from caffe2.python import scope
+from caffe2.python import workspace
 
 import detectron.utils.env as envu
 

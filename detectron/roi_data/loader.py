@@ -44,11 +44,11 @@ from collections import deque
 from collections import OrderedDict
 import logging
 import numpy as np
-import Queue
 import signal
 import threading
 import time
 import uuid
+from six.moves import queue as Queue
 
 from caffe2.python import core, workspace
 
@@ -224,6 +224,7 @@ class RoIDataLoader(object):
 
     def start(self, prefill=False):
         for w in self._workers + self._enqueuers:
+            w.setDaemon(True)
             w.start()
         if prefill:
             logger.info('Pre-filling mini-batch queue...')
@@ -239,6 +240,9 @@ class RoIDataLoader(object):
                 if self.coordinator.should_stop():
                     self.shutdown()
                     break
+
+    def has_stopped(self):
+        return self.coordinator.should_stop()
 
     def shutdown(self):
         self.coordinator.request_stop()

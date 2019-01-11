@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # Copyright (c) 2017-present, Facebook, Inc.
 #
@@ -84,18 +84,31 @@ def parse_args():
         type=str
     )
     parser.add_argument(
-        '--img_pad',
-        dest='img_pad',
-        help='image padding when testing',
-        default=0,
-        type=int
+        '--always-out',
+        dest='out_when_no_box',
+        help='output image even when no object is found',
+        action='store_true'
     )
     parser.add_argument(
-        '--csv_res',
-        dest='csv_res',
-        help='write csv filename',
-        default='',
+        '--output-ext',
+        dest='output_ext',
+        help='output image file format (default: pdf)',
+        default='pdf',
         type=str
+    )
+    parser.add_argument(
+        '--thresh',
+        dest='thresh',
+        help='Threshold for visualizing detections',
+        default=0.7,
+        type=float
+    )
+    parser.add_argument(
+        '--kp-thresh',
+        dest='kp_thresh',
+        help='Threshold for visualizing keypoints',
+        default=2.0,
+        type=float
     )
     parser.add_argument(
         'im_or_folder', help='image or folder of images', default=None
@@ -126,26 +139,13 @@ def main(args):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
     else:
         im_list = [args.im_or_folder]
-    im_done = []
-    if args.csv_res != '' and os.path.exists(args.csv_res):
-        with open(args.csv_res) as f:
-            for line in f.readlines():
-                items = line.strip().split(',')
-                if items[0].endswith('.jpg'):
-                    im_done.append(items[0])
+
     for i, im_name in enumerate(im_list):
-        print(im_name)
-        if os.path.basename(im_name) in im_done:
-            continue
         out_name = os.path.join(
-            args.output_dir, '{}'.format(os.path.basename(im_name) + '.pdf')
+            args.output_dir, '{}'.format(os.path.basename(im_name) + '.' + args.output_ext)
         )
         logger.info('Processing {} -> {}'.format(im_name, out_name))
-        if args.csv_res != '':
-            with open(args.csv_res, 'a') as f:
-                f.write('\n{},'.format(os.path.basename(im_name)))
         im = cv2.imread(im_name)
-        im = cv2.copyMakeBorder(im, args.img_pad, args.img_pad, args.img_pad, args.img_pad, cv2.BORDER_CONSTANT, value=(0,0,0))
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -171,10 +171,10 @@ def main(args):
             dataset=dummy_coco_dataset,
             box_alpha=0.3,
             show_class=True,
-            thresh=0.7,
-            kp_thresh=2,
-            csv_res=args.csv_res,
-            img_pad=args.img_pad
+            thresh=args.thresh,
+            kp_thresh=args.kp_thresh,
+            ext=args.output_ext,
+            out_when_no_box=args.out_when_no_box
         )
 
 

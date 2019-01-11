@@ -24,6 +24,7 @@ import json
 import logging
 import numpy as np
 import os
+import six
 import uuid
 
 from pycocotools.cocoeval import COCOeval
@@ -55,6 +56,10 @@ def evaluate_masks(
     if json_dataset.name.find('test') == -1:
         coco_eval = _do_segmentation_eval(json_dataset, res_file, output_dir)
     else:
+        logger.warning(
+            '{} eval ignored as annotations are undisclosed on test: {} ignored'
+            .format("Segmentation", json_dataset.name)
+        )
         coco_eval = None
     # Optionally cleanup results json file
     if cleanup:
@@ -82,6 +87,16 @@ def _write_coco_segms_results_file(
         'Writing segmentation results json to: {}'.format(
             os.path.abspath(res_file)))
     with open(res_file, 'w') as fid:
+        # "counts" is an array encoded by mask_util as a byte-stream. Python3's
+        # json writer which /always produces strings/ cannot serialize a bytestream
+        # unless you decode it. Thankfully, utf-8 works out (which is also what
+        # the pycocotools/_mask.pyx does.
+        if six.PY3:
+            for r in results:
+                rle = r['segmentation']
+                if 'counts' in rle:
+                    rle['counts'] = rle['counts'].decode("utf8")
+
         json.dump(results, fid)
 
 
@@ -137,6 +152,10 @@ def evaluate_boxes(
     if json_dataset.name.find('test') == -1:
         coco_eval = _do_detection_eval(json_dataset, res_file, output_dir)
     else:
+        logger.warning(
+            '{} eval ignored as annotations are undisclosed on test: {} ignored'
+            .format("Bbox", json_dataset.name)
+        )
         coco_eval = None
     # Optionally cleanup results json file
     if cleanup:
@@ -337,6 +356,10 @@ def evaluate_keypoints(
     if json_dataset.name.find('test') == -1:
         coco_eval = _do_keypoint_eval(json_dataset, res_file, output_dir)
     else:
+        logger.warning(
+            '{} eval ignored as annotations are undisclosed on test: {} ignored'
+            .format("Keypoints", json_dataset.name)
+        )
         coco_eval = None
     # Optionally cleanup results json file
     if cleanup:

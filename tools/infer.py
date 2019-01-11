@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # Copyright (c) 2017-present, Facebook, Inc.
 #
@@ -32,7 +32,6 @@ import cv2  # NOQA (Must import before importing caffe2 due to bug in cv2)
 import logging
 import os
 import sys
-import yaml
 
 from caffe2.python import workspace
 
@@ -47,6 +46,7 @@ import detectron.core.rpn_generator as rpn_engine
 import detectron.core.test_engine as model_engine
 import detectron.datasets.dummy_datasets as dummy_datasets
 import detectron.utils.c2 as c2_utils
+import detectron.utils.env as envu
 import detectron.utils.vis as vis_utils
 
 c2_utils.import_detectron_ops()
@@ -56,9 +56,10 @@ c2_utils.import_detectron_ops()
 cv2.ocl.setUseOpenCL(False)
 
 # infer.py
-#   --im [path/to/image.jpg]
-#   --rpn-model [path/to/rpn/model.pkl]
-#   --rpn-config [path/to/rpn/config.yaml]
+#   --im [path/to/image.jpg] \
+#   --rpn-model [path/to/rpn/model.pkl] \
+#   --rpn-cfg [path/to/rpn/config.yaml] \
+#   --output-dir [path/to/output/dir] \
 #   [model1] [config1] [model2] [config2] ...
 
 
@@ -90,7 +91,7 @@ def parse_args():
     )
     parser.add_argument(
         'models_to_run',
-        help='list of pkl, yaml pairs',
+        help='pairs of models & configs, listed like so: [pkl1] [yaml1] [pkl2] [yaml2] ...',
         default=None,
         nargs=argparse.REMAINDER
     )
@@ -118,7 +119,7 @@ def get_rpn_box_proposals(im, args):
 def main(args):
     logger = logging.getLogger(__name__)
     dummy_coco_dataset = dummy_datasets.get_coco_dataset()
-    cfg_orig = load_cfg(yaml.dump(cfg))
+    cfg_orig = load_cfg(envu.yaml_dump(cfg))
     im = cv2.imread(args.im_file)
 
     if args.rpn_pkl is not None:
