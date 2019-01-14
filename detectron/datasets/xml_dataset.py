@@ -103,7 +103,12 @@ class XMLDataset(object):
 
         self.debug_timer = Timer()
         # Set up dataset classes
-        dummy_dataset = dummy_datasets.get_bupi_dataset()
+        if 'traffic' in self.name:
+            dummy_dataset = dummy_datasets.get_traffic_dataset()
+        elif 'bupi' in self.name:
+            dummy_dataset = dummy_datasets.get_cloth_dataset()
+        elif 'steel' in self.name:
+            dummy_dataset = dummy_datasets.get_steel_dataset()
         categories = dummy_dataset.classes.values()
         category_ids = range(len(categories))
         logger.info('categories\t{}'.format(categories))
@@ -219,7 +224,7 @@ class XMLDataset(object):
     def load_objs_from_index(self, entry):
         import xml.etree.ElementTree as ET
         index = entry['index']
-        tree = ET.parse(os.path.join(_DATASETS[self.name][_IM_DIR], index + '.xml'))
+        tree = ET.parse(os.path.join(_DATASETS[self.name][_ANN_DIR], index + '.xml'))
         size = tree.find('size')
         entry['width'] = int(size.find('width').text)
         entry['height'] = int(size.find('height').text)
@@ -239,8 +244,9 @@ class XMLDataset(object):
             tmp_obj['bbox'] = [x1, y1, x2, y2]
 
             segms = obj.find('segmentation')
-            if len(segms) == 0:
+            if segms == None or len(segms) == 0:
                 polygons = None
+                area = 0
             else:
                 polygons = get_polygon_from_obj(segms)
                 area = get_segmentation_area(segms)

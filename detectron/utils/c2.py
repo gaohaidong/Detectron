@@ -147,3 +147,20 @@ def gauss_fill(std):
 def const_fill(value):
     """Constant fill helper to reduce verbosity."""
     return ('ConstantFill', {'value': value})
+
+
+def get_nvidia_info():
+    return (
+        get_nvidia_smi_output(),
+        workspace.GetCUDAVersion(),
+        workspace.GetCuDNNVersion(),
+    )
+
+
+def get_nvidia_smi_output():
+    try:
+        info = subprocess.check_output(["nvidia-smi"], stderr=subprocess.STDOUT)
+        info = info.decode("utf8")
+    except Exception as e:
+        info = "Executing nvidia-smi failed: " + str(e)
+    return info.strip()

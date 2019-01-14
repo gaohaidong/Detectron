@@ -194,7 +194,7 @@ __C.TRAIN.COPY_WEIGHTS = False
 # Add StopGrad at a specified stage so the bottom layers are frozen
 __C.TRAIN.FREEZE_AT = 2
 
-__C.TRAIN.DATASET_CACHE_PATH = ''
+__C.TRAIN.DATASET_CACHE_PATH = 'detectron/datasets/data/'
 
 
 # ---------------------------------------------------------------------------- #

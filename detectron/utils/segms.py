@@ -62,13 +62,15 @@ def flip_segms(segms, height, width):
         return rle
 
     flipped_segms = []
+
     for segm in segms:
-        if is_poly(segm):
-            # Polygon format
-            flipped_segms.append([_flip_poly(poly, width) for poly in segm])
-        else:
-            # RLE format
-            flipped_segms.append(_flip_rle(segm, height, width))
+        if segm is not None:
+            if is_poly(segm):
+                # Polygon format
+                flipped_segms.append([_flip_poly(poly, width) for poly in segm])
+            else:
+                # RLE format
+                flipped_segms.append(_flip_rle(segm, height, width))
     return flipped_segms
 
 

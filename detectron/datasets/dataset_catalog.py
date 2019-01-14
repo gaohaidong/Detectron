@@ -234,6 +234,14 @@ _DATASETS = {
             _DATA_DIR + '/bupi/train.txt',
         _ANN_DIR:
             _DATA_DIR + '/bupi/annotations'
+    },
+    'steel_train': {
+        _IM_DIR:
+            _DATA_DIR + '/train',
+        _ANN_FN:
+            _DATA_DIR + '/train.txt',
+        _ANN_DIR:
+            _DATA_DIR + '/annotations'
     }
 }
 
