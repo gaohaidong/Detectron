@@ -92,8 +92,8 @@ def parse_args():
     parser.add_argument(
         '--output-ext',
         dest='output_ext',
-        help='output image file format (default: pdf)',
-        default='pdf',
+        help='output image file format (default: jpg)',
+        default='jpg',
         type=str
     )
     parser.add_argument(
@@ -133,7 +133,14 @@ def main(args):
         'Models that require precomputed proposals are not supported'
 
     model = infer_engine.initialize_model_from_cfg(args.weights)
-    dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    if 'bupi' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_cloth_dataset()
+    if 'traffic' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_traffic_dataset()
+    if 'steel' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_steel_dataset()
+    else:
+        dummy_dataset = dummy_datasets.get_coco_dataset()
 
     if os.path.isdir(args.im_or_folder):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
@@ -168,7 +175,7 @@ def main(args):
             cls_boxes,
             cls_segms,
             cls_keyps,
-            dataset=dummy_coco_dataset,
+            dataset=dummy_dataset,
             box_alpha=0.3,
             show_class=True,
             thresh=args.thresh,
