@@ -47,6 +47,8 @@ def combined_roidb_for_training(dataset_names, proposal_files):
             ds = XMLDataset(dataset_name)
         elif 'steel' in dataset_name:
             ds = XMLDataset(dataset_name)
+        elif 'hanzi' in dataset_name:
+            ds = XMLDataset(dataset_name)
         else:
             ds = JsonDataset(dataset_name)
         roidb = ds.get_roidb(

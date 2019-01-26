@@ -291,6 +291,8 @@ def vis_one_image(
         sorted_inds = np.argsort(-areas)
 
     mask_color_id = 0
+    if 0:
+        import csv
     for i in sorted_inds:
         bbox = boxes[i, :4]
         score = boxes[i, -1]
@@ -303,8 +305,13 @@ def vis_one_image(
                           bbox[2] - bbox[0],
                           bbox[3] - bbox[1],
                           fill=False, edgecolor='g',
-                          linewidth=0.5, alpha=box_alpha))
-
+                          linewidth=1, alpha=1.))
+        if 0:
+            with open('submit_X-101-64x4d-FPN-im_14_300.csv','a') as f:
+                # f_csv = csv.writer(f)
+                # f_csv.writerow([os.path.basename(im_name), int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
+                f.write('{},{} {} {} {}\n'.format(os.path.basename(im_name), int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])))
+    
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,

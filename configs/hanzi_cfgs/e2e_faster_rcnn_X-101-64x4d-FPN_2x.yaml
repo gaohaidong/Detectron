@@ -16,8 +16,6 @@ FPN:
   FPN_ON: True
   MULTILEVEL_ROIS: True
   MULTILEVEL_RPN: True
-  RPN_ASPECT_RATIOS: (0.8, 1, 1.2)
-  RPN_ANCHOR_START_SIZE: 16
 RESNETS:
   STRIDE_1X1: False  # default True for MSRA; False for C2 or Torch models
   TRANS_FUNC: bottleneck_transformation
@@ -26,14 +24,12 @@ RESNETS:
 FAST_RCNN:
   ROI_BOX_HEAD: fast_rcnn_heads.add_roi_2mlp_head
   ROI_XFORM_METHOD: RoIAlign
-  ROI_XFORM_RESOLUTION: 14
-  ROI_XFORM_SAMPLING_RATIO: 4
 TRAIN:
   # md5sum of weights pkl file: aa14062280226e48f569ef1c7212e7c7
   WEIGHTS: imagenet_models/X-101-64x4d.pkl
-  DATASETS: ('steel_train', )
+  DATASETS: ('hanzi_train', )
   DATASET_CACHE_PATH: 'detectron/datasets/data/'
-  SCALES: (800, 1000)
+  SCALES: (100, 200, 300, 400, 500)
   MAX_SIZE: 2333
   IMS_PER_BATCH: 1
   RPN_BATCH_SIZE_PER_IM: 64
@@ -50,7 +46,7 @@ TEST:
     SCORE_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     COORD_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
     H_FLIP: True
-    SCALES: (1000, 1200, 1300)
+    SCALES: (300, 400, 500)
     MAX_SIZE: 3000
     SCALE_H_FLIP: True
     ASPECT_RATIOS: (0.7, 0.8, 1., 1.2, 1.3, )

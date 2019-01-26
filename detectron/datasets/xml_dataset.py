@@ -109,6 +109,8 @@ class XMLDataset(object):
             dummy_dataset = dummy_datasets.get_cloth_dataset()
         elif 'steel' in self.name:
             dummy_dataset = dummy_datasets.get_steel_dataset()
+        elif 'hanzi' in self.name:
+            dummy_dataset = dummy_datasets.get_hanzi_dataset()
         categories = dummy_dataset.classes.values()
         category_ids = range(len(categories))
         logger.info('categories\t{}'.format(categories))

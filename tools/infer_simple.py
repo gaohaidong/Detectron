@@ -177,7 +177,7 @@ def main(args):
             cls_keyps,
             dataset=dummy_dataset,
             box_alpha=0.3,
-            show_class=True,
+            show_class=False,
             thresh=args.thresh,
             kp_thresh=args.kp_thresh,
             ext=args.output_ext,

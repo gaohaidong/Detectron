@@ -242,6 +242,14 @@ _DATASETS = {
             _DATA_DIR + '/train.txt',
         _ANN_DIR:
             _DATA_DIR + '/annotations'
+    },
+    'hanzi_train': {
+        _IM_DIR:
+            _DATA_DIR + '/hanzi/train',
+        _ANN_FN:
+            _DATA_DIR + '/hanzi/train.txt',
+        _ANN_DIR:
+            _DATA_DIR + '/hanzi/annotations'
     }
 }
 

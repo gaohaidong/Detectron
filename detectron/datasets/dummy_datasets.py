@@ -71,3 +71,11 @@ def get_steel_dataset():
     ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds
+
+def get_hanzi_dataset():
+    ds = AttrDict()
+    classes = [
+        '__background__', 'hanzi'
+    ]
+    ds.classes = {i: name for i, name in enumerate(classes)}
+    return ds
