@@ -95,9 +95,10 @@ def parse_args():
         dest='source',
         help='source for surveillance video', 
         # default='http://hls.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.hd.m3u8',
-        # default='rtmp://rtmp.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf.hd',
-        default='rtsp://admin:gt121314@172.16.5.7:554/onvif1',
+        # default='rtmp://rtmp.open.ys7.com/openlive/acd9b6ecc9a4478c81e2b829a919eeaf',
+        # default='rtsp://admin:gt121314@172.16.5.7:554/onvif1',
         # default='rtsp://10.186.88.1:554/onvif3',
+        default = 'rtsp://admin:NWVNNC@192.168.1.104/Streaming/Channels/1', 
         type=str
     )
     if len(sys.argv) == 1:
