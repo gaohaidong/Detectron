@@ -135,10 +135,12 @@ def main(args):
     model = infer_engine.initialize_model_from_cfg(args.weights)
     if 'bupi' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_cloth_dataset()
-    if 'traffic' in cfg.TEST.DATASETS[0]:
+    elif 'traffic' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_traffic_dataset()
-    if 'steel' in cfg.TEST.DATASETS[0]:
+    elif 'steel' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_steel_dataset()
+    if 'hanzi' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_hanzi_dataset()
     else:
         dummy_dataset = dummy_datasets.get_coco_dataset()
 
@@ -146,12 +148,19 @@ def main(args):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
     else:
         im_list = [args.im_or_folder]
-
-    for i, im_name in enumerate(im_list):
+    processed_ims = set()
+    if os.path.exists(args.output_dir):
+        for processed_im in os.listdir(args.output_dir):
+            processed_ims.add(os.path.splitext(processed_im)[0])
+    from tqdm import tqdm
+    for i, im_name in tqdm(enumerate(im_list)):
         out_name = os.path.join(
             args.output_dir, '{}'.format(os.path.basename(im_name) + '.' + args.output_ext)
         )
         logger.info('Processing {} -> {}'.format(im_name, out_name))
+        if os.path.basename(im_name)[:-4] in processed_ims:
+            logger.info('Processed {}'.format(im_name))
+            continue
         im = cv2.imread(im_name)
         timers = defaultdict(Timer)
         t = time.time()
@@ -167,7 +176,16 @@ def main(args):
                 ' \ Note: inference on the first image will be slower than the '
                 'rest (caches and auto-tuning need to warm up)'
             )
-
+        # vis_utils.save_xml_res(
+        #     im,  # BGR -> RGB for visualization
+        #     im_name,
+        #     args.output_dir,
+        #     cls_boxes,
+        #     cls_segms,
+        #     cls_keyps,
+        #     dataset=dummy_dataset,
+        #     thresh=args.thresh,
+        # )
         vis_utils.vis_one_image(
             im[:, :, ::-1],  # BGR -> RGB for visualization
             im_name,

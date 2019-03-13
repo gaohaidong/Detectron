@@ -126,6 +126,7 @@ class XMLDataset(object):
     def load_image_set_index(self):
         image_set_index_file = os.path.join(_DATASETS[self.name][_ANN_FN])
         assert os.path.exists(image_set_index_file), 'Path does not exist: {}'.format(image_set_index_file)
+        logger.info('image_set_index_file \t{}'.format(image_set_index_file))
         with open(image_set_index_file) as f:
             image_set_index = [x.strip() for x in f.readlines()]
             logger.info('number of images\t{}'.format(len(image_set_index)))

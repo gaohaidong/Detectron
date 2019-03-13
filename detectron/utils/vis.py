@@ -23,6 +23,8 @@ from __future__ import unicode_literals
 import cv2
 import numpy as np
 import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 import pycocotools.mask as mask_util
 
@@ -249,6 +251,63 @@ def vis_one_image_opencv(
 
     return im
 
+def save_xml_res(im, im_name, xml_dir, boxes, segms=None, keypoints=None, thresh=0.7, dataset=None):
+    if not os.path.exists(xml_dir):
+        os.makedirs(xml_dir)
+
+    if isinstance(boxes, list):
+        boxes, segms, keypoints, classes = convert_from_cls_format(
+            boxes, segms, keypoints)
+
+    if (boxes is None or boxes.shape[0] == 0 or max(boxes[:, 4]) < thresh):
+        return
+    if boxes is None:
+        sorted_inds = [] # avoid crash when 'boxes' is None
+    else:
+        # Display in largest to smallest order to reduce occlusion
+        # areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+        # sorted_inds = np.argsort(-areas)
+        sorted_inds = np.argsort(boxes[:, 1])
+        
+    root = ET.Element('annotation')
+    folder = ET.SubElement(root, 'folder')
+    folder.text = xml_dir
+    filename = ET.SubElement(root, 'filename')
+    filename.text = im_name
+    size = ET.SubElement(root, 'size')
+    im_shape = im.shape
+    width = ET.SubElement(size, 'width')
+    width.text = str(im_shape[1])
+    height = ET.SubElement(size, 'height')
+    height.text = str(im_shape[0])
+    depth = ET.SubElement(size, 'depth')
+    depth.text = str(im_shape[2])
+    
+    for i in sorted_inds:
+        bbox = boxes[i, :4]
+        score = boxes[i, -1]
+        if score < thresh:
+            continue
+        
+        obj = ET.SubElement(root, 'object')
+        name = ET.SubElement(obj, 'name')
+        name.text = dataset.classes[classes[i]]
+        bndbox = ET.SubElement(obj, 'bndbox')
+        xmin = ET.SubElement(bndbox, 'xmin')
+        xmin.text = str(int(bbox[0]))
+        ymin = ET.SubElement(bndbox, 'ymin')
+        ymin.text = str(int(bbox[1]))
+        xmax = ET.SubElement(bndbox, 'xmax')
+        xmax.text = str(int(bbox[2]))
+        ymax = ET.SubElement(bndbox, 'ymax')
+        ymax.text = str(int(bbox[3]))
+    tree = minidom.parseString(ET.tostring(root))
+    xml_str = tree.toprettyxml()
+    dom_string = '\n'.join([s for s in xml_str.splitlines() if s.strip()])
+    print(os.path.join(xml_dir, os.path.basename(im_name).replace('jpg', 'xml')))
+    with open(os.path.join(xml_dir,  os.path.basename(im_name).replace('jpg', 'xml')), 'w') as f:
+        f.write(dom_string)
+
 
 def vis_one_image(
         im, im_name, output_dir, boxes, segms=None, keypoints=None, thresh=0.9,
@@ -291,8 +350,7 @@ def vis_one_image(
         sorted_inds = np.argsort(-areas)
 
     mask_color_id = 0
-    if 0:
-        import csv
+    
     for i in sorted_inds:
         bbox = boxes[i, :4]
         score = boxes[i, -1]
@@ -306,11 +364,10 @@ def vis_one_image(
                           bbox[3] - bbox[1],
                           fill=False, edgecolor='g',
                           linewidth=1, alpha=1.))
-        if 0:
-            with open('submit_X-101-64x4d-FPN-im_14_300.csv','a') as f:
-                # f_csv = csv.writer(f)
-                # f_csv.writerow([os.path.basename(im_name), int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])])
-                f.write('{},{} {} {} {}\n'.format(os.path.basename(im_name), int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])))
+        
+        x1, y1, x2, y2 = map(int, [bbox[i] for i in range(4)])
+        cv2.imwrite('test_words/{}_{}_{}_{}_{}.jpg'.format(os.path.basename(im_name), x1, y1, x2, y2), \
+            im[y1:y2, x1:x2])
     
         if show_class:
             ax.text(
