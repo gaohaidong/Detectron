@@ -87,3 +87,11 @@ def get_trafficSign_dataset():
     ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds
+
+def get_dishwash_dataset():
+    ds = AttrDict()
+    classes = [
+        '__background__', 'PanZi', 'WuHen', 'FanZi', 'WuZi', 'KaFeiZi', 'TangZi', 'FanLi', 'CaiZha', 'YouZi'
+    ]
+    ds.classes = {i: name for i, name in enumerate(classes)}
+    return ds

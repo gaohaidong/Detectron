@@ -258,6 +258,14 @@ _DATASETS = {
             _DATA_DIR + '/trafficSign/train.txt',
         _ANN_DIR:
             _DATA_DIR + '/trafficSign/annotations'
+    },
+    'dishwash_train': {
+        _IM_DIR:
+            _DATA_DIR + '/dishwash/images',
+        _ANN_FN:
+            _DATA_DIR + '/dishwash/train.txt',
+        _ANN_DIR:
+            _DATA_DIR + '/dishwash/xmls'
     }
 }
 

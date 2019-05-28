@@ -113,6 +113,8 @@ class XMLDataset(object):
             dummy_dataset = dummy_datasets.get_hanzi_dataset()
         if 'trafficSign' in self.name:
             dummy_dataset = dummy_datasets.get_trafficSign_dataset()
+        if 'dishwash' in self.name:
+            dummy_dataset = dummy_datasets.get_dishwash_dataset()
         categories = dummy_dataset.classes.values()
         category_ids = range(len(categories))
         logger.info('categories\t{}'.format(categories))
@@ -135,7 +137,7 @@ class XMLDataset(object):
             return image_set_index
 
     def image_path_from_index(self,index):
-        image_path = os.path.join(_DATASETS[self.name][_IM_DIR], index + '.jpg')
+        image_path = os.path.join(_DATASETS[self.name][_IM_DIR], index + '.JPG')
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
 

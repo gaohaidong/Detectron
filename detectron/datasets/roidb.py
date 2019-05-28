@@ -50,7 +50,9 @@ def combined_roidb_for_training(dataset_names, proposal_files):
         elif 'hanzi' in dataset_name:
             ds = XMLDataset(dataset_name)
         else:
-            ds = JsonDataset(dataset_name)
+            # ds = JsonDataset(dataset_name)
+            ds = XMLDataset(dataset_name)
+
         roidb = ds.get_roidb(
             gt=True,
             proposal_file=proposal_file,
