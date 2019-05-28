@@ -79,3 +79,11 @@ def get_hanzi_dataset():
     ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds
+
+def get_trafficSign_dataset():
+    ds = AttrDict()
+    classes = [
+        '__background__', 'Parking','Stop','DrivingRight','TurnLeftRight','BusAccess','DrivingLeft','Slow','VehicleStraightAndTurnRight','WatchoutPedestrians','DriveAroundIsland','StraightAndTurnRight','ProhibitionOfBusAccess','ProhibitionOfMotorbikeAccess','ProhibitionOfMotorVehicle','ProhibitionOfNonMotorVehicle','ProhibitionOfHonking','InterchangeStraightAndTurn','LimitSpeed40','LimitSpeed30','Honking','Other'
+    ]
+    ds.classes = {i: name for i, name in enumerate(classes)}
+    return ds

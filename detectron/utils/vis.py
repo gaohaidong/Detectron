@@ -312,7 +312,7 @@ def save_xml_res(im, im_name, xml_dir, boxes, segms=None, keypoints=None, thresh
 def vis_one_image(
         im, im_name, output_dir, boxes, segms=None, keypoints=None, thresh=0.9,
         kp_thresh=2, dpi=200, box_alpha=0.0, dataset=None, show_class=False,
-        ext='jpg', out_when_no_box=False):
+        ext='jpg', out_when_no_box=False, save_im = False, csv = '', xmin = 0, ymin = 0):
     """Visual debugging of detections."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -320,7 +320,6 @@ def vis_one_image(
     if isinstance(boxes, list):
         boxes, segms, keypoints, classes = convert_from_cls_format(
             boxes, segms, keypoints)
-
     if (boxes is None or boxes.shape[0] == 0 or max(boxes[:, 4]) < thresh) and not out_when_no_box:
         return
 
@@ -334,41 +333,46 @@ def vis_one_image(
     kp_lines = kp_connections(dataset_keypoints)
     cmap = plt.get_cmap('rainbow')
     colors = [cmap(i) for i in np.linspace(0, 1, len(kp_lines) + 2)]
-
-    fig = plt.figure(frameon=False)
-    fig.set_size_inches(im.shape[1] / dpi, im.shape[0] / dpi)
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    ax.axis('off')
-    fig.add_axes(ax)
-    ax.imshow(im)
+    if save_im:
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches(im.shape[1] / dpi, im.shape[0] / dpi)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.axis('off')
+        fig.add_axes(ax)
+        ax.imshow(im)
 
     if boxes is None:
         sorted_inds = [] # avoid crash when 'boxes' is None
     else:
         # Display in largest to smallest order to reduce occlusion
         areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
-        sorted_inds = np.argsort(-areas)
+        # sorted_inds = np.argsort(-areas)
+        sorted_inds = np.argsort(-boxes[:, -1]) #sorted scores
 
     mask_color_id = 0
-    
-    for i in sorted_inds:
+    for i in range(sorted_inds[0], sorted_inds[0] + 1):
         bbox = boxes[i, :4]
         score = boxes[i, -1]
         if score < thresh:
             continue
 
-        # show box (off by default)
-        ax.add_patch(
-            plt.Rectangle((bbox[0], bbox[1]),
-                          bbox[2] - bbox[0],
-                          bbox[3] - bbox[1],
-                          fill=False, edgecolor='g',
-                          linewidth=1, alpha=1.))
-        
-        x1, y1, x2, y2 = map(int, [bbox[i] for i in range(4)])
-        cv2.imwrite('test_words/{}_{}_{}_{}_{}.jpg'.format(os.path.basename(im_name), x1, y1, x2, y2), \
-            im[y1:y2, x1:x2])
-    
+        if save_im:
+            # show box (off by default)
+            ax.add_patch(
+                plt.Rectangle((bbox[0], bbox[1]),
+                            bbox[2] - bbox[0],
+                            bbox[3] - bbox[1],
+                            fill=False, edgecolor='g',
+                            linewidth=1, alpha=1.))
+            
+        x1, y1, x2, y2 = map(float, [bbox[ii] for ii in range(4)])
+        # cv2.imwrite('test_trafficSign/{}_{}_{}_{}_{}.jpg'.format(os.path.basename(im_name), x1, y1, x2, y2), \
+        #     im[y1:y2, x1:x2])
+        if csv != '':
+            with open(csv, 'a') as f:
+                f.write('{},{},{},{},{},{},{},{},{},{}\n'.format(os.path.basename(im_name), \
+                    x1 + xmin, y1 + ymin, x2 + xmin, y1 + ymin, x2 + xmin, y2 + ymin, x1 + xmin, y2 + ymin, classes[i]))
+
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,
@@ -452,7 +456,7 @@ def vis_one_image(
                 plt.setp(
                     line, color=colors[len(kp_lines) + 1], linewidth=1.0,
                     alpha=0.7)
-
-    output_name = os.path.basename(im_name) + '.' + ext
-    fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
-    plt.close('all')
+    if save_im:
+        output_name = os.path.basename(im_name) + '.' + ext
+        fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
+        plt.close('all')

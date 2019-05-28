@@ -111,6 +111,12 @@ def parse_args():
         type=float
     )
     parser.add_argument(
+        '--csv', dest='csv', help='csv', default='',type=str
+    )
+    parser.add_argument(
+        '--step', dest='step', help='step', default=1,type=int
+    )
+    parser.add_argument(
         'im_or_folder', help='image or folder of images', default=None
     )
     if len(sys.argv) == 1:
@@ -135,12 +141,14 @@ def main(args):
     model = infer_engine.initialize_model_from_cfg(args.weights)
     if 'bupi' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_cloth_dataset()
-    elif 'traffic' in cfg.TEST.DATASETS[0]:
+    if 'traffic' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_traffic_dataset()
-    elif 'steel' in cfg.TEST.DATASETS[0]:
+    if 'steel' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_steel_dataset()
     if 'hanzi' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_hanzi_dataset()
+    if 'trafficSign' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_trafficSign_dataset()
     else:
         dummy_dataset = dummy_datasets.get_coco_dataset()
 
@@ -148,20 +156,61 @@ def main(args):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
     else:
         im_list = [args.im_or_folder]
-    processed_ims = set()
-    if os.path.exists(args.output_dir):
-        for processed_im in os.listdir(args.output_dir):
-            processed_ims.add(os.path.splitext(processed_im)[0])
+    processed_ims = []
+    # # if os.path.exists(args.output_dir):
+    # #     for processed_im in os.listdir(args.output_dir):
+    # #         processed_ims.append(processed_im.split('.')[0])
+    if args.csv != '' and os.path.exists(args.csv):
+        with open(args.csv) as f:
+            for line in f.readlines():
+                processed_ims.append(line.split(',')[0].split('.')[0])
     from tqdm import tqdm
+    if args.csv != '' and not os.path.exists(args.csv):
+        with open(args.csv, 'w') as f:
+            f.write('filename,X1,Y1,X2,Y2,X3,Y3,X4,Y4,type\n')
+    import csv
+    if args.step == 2:
+        coarse_anno = dict()
+        with open('whole_res_0525.csv') as f:
+            f_csv = csv.reader(f)
+            headers = next(f_csv)
+            for row in f_csv:
+                coarse_anno[row[0]] = row[1:]
     for i, im_name in tqdm(enumerate(im_list)):
         out_name = os.path.join(
             args.output_dir, '{}'.format(os.path.basename(im_name) + '.' + args.output_ext)
         )
-        logger.info('Processing {} -> {}'.format(im_name, out_name))
-        if os.path.basename(im_name)[:-4] in processed_ims:
-            logger.info('Processed {}'.format(im_name))
+        
+        if os.path.basename(im_name).split('.')[0] in processed_ims:
+            # logger.info('Processed {}'.format(im_name))
             continue
+        logger.info('Processing {} -> {}'.format(im_name, out_name))
         im = cv2.imread(im_name)
+        xmin = 0
+        ymin = 0
+        if args.step == 2:
+            height, width, _ = im.shape
+            new_width = int(width / 6)
+            new_height = int(height / 6)
+            if os.path.basename(im_name) in coarse_anno:
+                x1, y1, _, _, x2, y2, _, _, _ = map(float, coarse_anno[os.path.basename(im_name)])
+                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+                if (x1 - new_width / 2 > 0) and (x1 + new_width / 2 < width):
+                    xmin = int(x1 - new_width / 2)
+                elif x1 - new_width / 2 <= 0:
+                    xmin = 0
+                else:
+                    xmin = int(width - new_width)
+                if (y1 - new_height / 2 > 0) and (y1 + new_height / 2 < height):
+                    ymin = int(y1 - new_height / 2)
+                elif y1 - new_height / 2 <= 0:
+                    ymin = 0
+                else:
+                    ymin = int(height - new_height)
+                im = im[ymin:ymin+new_height, xmin:xmin+new_width]
+            else:
+                continue
+    
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -199,7 +248,11 @@ def main(args):
             thresh=args.thresh,
             kp_thresh=args.kp_thresh,
             ext=args.output_ext,
-            out_when_no_box=args.out_when_no_box
+            out_when_no_box=args.out_when_no_box,
+            save_im=False,
+            csv=args.csv,
+            xmin = xmin,
+            ymin = ymin
         )
 
 

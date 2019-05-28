@@ -105,12 +105,14 @@ class XMLDataset(object):
         # Set up dataset classes
         if 'traffic' in self.name:
             dummy_dataset = dummy_datasets.get_traffic_dataset()
-        elif 'bupi' in self.name:
+        if 'bupi' in self.name:
             dummy_dataset = dummy_datasets.get_cloth_dataset()
-        elif 'steel' in self.name:
+        if 'steel' in self.name:
             dummy_dataset = dummy_datasets.get_steel_dataset()
-        elif 'hanzi' in self.name:
+        if 'hanzi' in self.name:
             dummy_dataset = dummy_datasets.get_hanzi_dataset()
+        if 'trafficSign' in self.name:
+            dummy_dataset = dummy_datasets.get_trafficSign_dataset()
         categories = dummy_dataset.classes.values()
         category_ids = range(len(categories))
         logger.info('categories\t{}'.format(categories))
@@ -235,7 +237,7 @@ class XMLDataset(object):
 
         valid_objs = []
         for obj in objs:
-            cls_name = obj.find('name').text.lower()
+            cls_name = obj.find('name').text
             if cls_name not in self.classes:
                 logger.info('obj class {} not in classname list {}'.format(cls_name, self.classes))
                 continue

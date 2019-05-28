@@ -250,6 +250,14 @@ _DATASETS = {
             _DATA_DIR + '/hanzi/train.txt',
         _ANN_DIR:
             _DATA_DIR + '/hanzi/annotations'
+    },
+    'trafficSign_train': {
+        _IM_DIR:
+            _DATA_DIR + '/trafficSign/train',
+        _ANN_FN:
+            _DATA_DIR + '/trafficSign/train.txt',
+        _ANN_DIR:
+            _DATA_DIR + '/trafficSign/annotations'
     }
 }
 
