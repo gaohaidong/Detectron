@@ -1,0 +1,74 @@
+MODEL:
+  TYPE: generalized_rcnn
+  CONV_BODY: FPN.add_fpn_ResNet101_conv5_body
+  NUM_CLASSES: 10
+  FASTER_RCNN: True
+NUM_GPUS: 2
+SOLVER:
+  WEIGHT_DECAY: 0.0001
+  LR_POLICY: steps_with_decay
+  # 1x schedule (note TRAIN.IMS_PER_BATCH: 1)
+  BASE_LR: 0.005
+  GAMMA: 0.1
+  MAX_ITER: 20000
+  STEPS: [0, 5000, 12000]
+RPN:
+  FOCAL_LOSS: False
+FPN:
+  FPN_ON: True
+  MULTILEVEL_ROIS: True
+  MULTILEVEL_RPN: True
+  RPN_ASPECT_RATIOS: (1.,)
+  DIM: 128
+RESNETS:
+  STRIDE_1X1: False  # default True for MSRA; False for C2 or Torch models
+  TRANS_FUNC: bottleneck_transformation
+  NUM_GROUPS: 64
+  WIDTH_PER_GROUP: 4
+FAST_RCNN:
+  ROI_BOX_HEAD: fast_rcnn_heads.add_roi_2mlp_head
+  ROI_XFORM_METHOD: RoIAlign
+  ROI_XFORM_RESOLUTION: 14
+  ROI_XFORM_SAMPLING_RATIO: 2
+  MLP_HEAD_DIM: 1024
+TRAIN:
+  WEIGHTS: imagenet_models/X-101-64x4d.pkl
+  # WEIGHTS: trained_models/trafficSign/train/trafficSign_train/generalized_rcnn/model_0523_quater.pkl
+  DATASETS: ('dishwash_train',)
+  # SCALES: (600, 700, 800, 900, 1000)
+  SCALES: (600, 800, 1000)
+  MAX_SIZE: 3200
+  IMS_PER_BATCH: 1
+  BATCH_SIZE_PER_IM: 64
+  RPN_PRE_NMS_TOP_N: 500  # Per FPN level
+  USE_FLIPPED: False
+  # RPN_POSITIVE_OVERLAP: 0.9
+  # FG_THRESH: 0.9
+  DATASET_CACHE_PATH: 'detectron/datasets/data/dishwash/cache/'
+TEST:
+  DATASETS: ('trafficSign_train',)
+  NMS: 0.3
+  RPN_PRE_NMS_TOP_N: 500  # Per FPN level
+  RPN_POST_NMS_TOP_N: 20
+  DETECTIONS_PER_IM: 5
+  SCORE_THRESH: 0.01
+  SCALE: 1200
+   # -- Test time augmentation example -- #
+  BBOX_AUG:
+    ENABLED: True
+    SCORE_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
+    COORD_HEUR: UNION  # AVG NOTE: cannot use AVG for e2e model
+    H_FLIP: False
+    # SCALES: (600, 700, 800, 900, 1000)
+    SCALES: (200, 300, 400, 500, 600, 700, 800)
+    MAX_SIZE: 3000
+    SCALE_H_FLIP: False
+    SCALE_SIZE_DEP: False
+    AREA_TH_LO: 20   # (14/1800*600)^2
+    AREA_TH_HI: 70000  # (198/900*1200)^2
+    ASPECT_RATIOS: ()
+    ASPECT_RATIO_H_FLIP: False
+  BBOX_VOTE:
+    ENABLED: True
+    VOTE_TH: 0.9
+OUTPUT_DIR: .
