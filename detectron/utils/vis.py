@@ -346,11 +346,11 @@ def vis_one_image(
     else:
         # Display in largest to smallest order to reduce occlusion
         areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
-        # sorted_inds = np.argsort(-areas)
-        sorted_inds = np.argsort(-boxes[:, -1]) #sorted scores
-
+        sorted_inds = np.argsort(-areas)
+        # sorted_inds = np.argsort(-boxes[:, -1]) #sorted scores
+    det_res = []
     mask_color_id = 0
-    for i in range(sorted_inds[0], sorted_inds[0] + 1):
+    for i in sorted_inds:
         bbox = boxes[i, :4]
         score = boxes[i, -1]
         if score < thresh:
@@ -365,19 +365,21 @@ def vis_one_image(
                             fill=False, edgecolor='g',
                             linewidth=1, alpha=1.))
             
-        x1, y1, x2, y2 = map(float, [bbox[ii] for ii in range(4)])
+        x1, y1, x2, y2 = map(int, [bbox[ii] for ii in range(4)])
+        det_res.append('{}_{}_{}_{}_{}'.format(dataset.classes[classes[i]], x1, y1, x2, y2))
+        
         # cv2.imwrite('test_trafficSign/{}_{}_{}_{}_{}.jpg'.format(os.path.basename(im_name), x1, y1, x2, y2), \
         #     im[y1:y2, x1:x2])
-        if csv != '':
-            with open(csv, 'a') as f:
-                f.write('{},{},{},{},{},{},{},{},{},{}\n'.format(os.path.basename(im_name), \
-                    x1 + xmin, y1 + ymin, x2 + xmin, y1 + ymin, x2 + xmin, y2 + ymin, x1 + xmin, y2 + ymin, classes[i]))
+        # if csv != '':
+        #     with open(csv, 'a') as f:
+        #         f.write('{},{},{},{},{},{},{},{},{},{}\n'.format(os.path.basename(im_name), \
+        #             x1 + xmin, y1 + ymin, x2 + xmin, y1 + ymin, x2 + xmin, y2 + ymin, x1 + xmin, y2 + ymin, classes[i]))
 
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,
                 get_class_string(classes[i], score, dataset),
-                fontsize=3,
+                fontsize=10,
                 family='serif',
                 bbox=dict(
                     facecolor='g', alpha=0.4, pad=0, edgecolor='none'),
@@ -460,3 +462,4 @@ def vis_one_image(
         output_name = os.path.basename(im_name) + '.' + ext
         fig.savefig(os.path.join(output_dir, '{}'.format(output_name)), dpi=dpi)
         plt.close('all')
+    return ','.join(det_res)

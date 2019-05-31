@@ -137,7 +137,7 @@ class XMLDataset(object):
             return image_set_index
 
     def image_path_from_index(self,index):
-        image_path = os.path.join(_DATASETS[self.name][_IM_DIR], index + '.JPG')
+        image_path = os.path.join(_DATASETS[self.name][_IM_DIR], index + '.jpg')
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
 
@@ -240,6 +240,10 @@ class XMLDataset(object):
         valid_objs = []
         for obj in objs:
             cls_name = obj.find('name').text
+            if cls_name == 'PanZi':
+                cls_name = 'PanZi'
+            else:
+                cls_name = 'WuZi'
             if cls_name not in self.classes:
                 logger.info('obj class {} not in classname list {}'.format(cls_name, self.classes))
                 continue

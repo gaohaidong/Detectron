@@ -1,14 +1,13 @@
  #!/usr/bin/env bash
 export CUDA_VISIBLE_DEVICES=1
 python2 tools/infer_simple.py \
-    --cfg configs/trafficSign_cfgs/e2e_faster_rcnn_X-101-64x4d-FPN.yaml \
-    --output-dir trafficSign \
+    --cfg configs/dishwash_cfgs/e2e_faster_rcnn_X-101-64x4d-FPN.yaml \
+    --output-dir dishwash \
     --image-ext jpg \
-    --thresh 0.01 \
-    --wts trained_models/trafficSign/train/trafficSign_train/generalized_rcnn/model_0523_quater.pkl \
-    --csv 6_res_0523_quater.csv \
-    --step 2 \
-/data/11trafficSign/Test_fix/
+    --thresh 0.3 \
+    --wts trained_models/dishwash_aug_new/train/dishwash_train/generalized_rcnn/model_final.pkl \
+    --step 1 \
+web_dishwash/
 
 #/data/08hanzi/traindataset/verifyImage
 

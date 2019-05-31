@@ -149,6 +149,8 @@ def main(args):
         dummy_dataset = dummy_datasets.get_hanzi_dataset()
     if 'trafficSign' in cfg.TEST.DATASETS[0]:
         dummy_dataset = dummy_datasets.get_trafficSign_dataset()
+    if 'dishwash' in cfg.TEST.DATASETS[0]:
+        dummy_dataset = dummy_datasets.get_dishwash_dataset()
     else:
         dummy_dataset = dummy_datasets.get_coco_dataset()
 
@@ -185,7 +187,7 @@ def main(args):
             # logger.info('Processed {}'.format(im_name))
             continue
         logger.info('Processing {} -> {}'.format(im_name, out_name))
-        im = cv2.imread(im_name)
+        im = cv2.imread(im_name, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
         xmin = 0
         ymin = 0
         if args.step == 2:
@@ -244,12 +246,12 @@ def main(args):
             cls_keyps,
             dataset=dummy_dataset,
             box_alpha=0.3,
-            show_class=False,
+            show_class=True,
             thresh=args.thresh,
             kp_thresh=args.kp_thresh,
             ext=args.output_ext,
             out_when_no_box=args.out_when_no_box,
-            save_im=False,
+            save_im=True,
             csv=args.csv,
             xmin = xmin,
             ymin = ymin
